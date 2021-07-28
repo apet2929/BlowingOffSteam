@@ -14,7 +14,6 @@ public class Animation {
     private int frameCount;
     private int frame;
 
-
     public Animation(TextureRegion region, int frameCount, float cycleTime){
         source = region;
         frames = new Array<>();

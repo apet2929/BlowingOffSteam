@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.moonjew.bos.Animation;
 
 import static com.moonjew.bos.screens.GameScreen.PPM;
@@ -21,38 +22,37 @@ public class Player {
     private Animation animation;
     private Sprite sprite;
     private Body body;
+    public Label label;
 
     public Player(World world) {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
         this.sprite = new Sprite(animation.getFrame());
-        this.sprite.setBounds(0,0, 50, 50);
+        this.sprite.setBounds(Gdx.graphics.getWidth()/2 - sprite.getWidth()/2 ,
+                Gdx.graphics.getHeight()/2, 50 , 50);
         this.sprite.setOriginCenter();
-        this.body = createBox(world, 0,0,32,32, false);
+
+        BodyDef def = new BodyDef();
+
+        def.type = BodyDef.BodyType.DynamicBody;
+
+        def.position.set(sprite.getX() / PPM, sprite.getY() / PPM);
+        body = world.createBody(def);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(((sprite.getWidth() / 2f) - 8) / PPM, ((sprite.getHeight() / 2f) - 8) / PPM);
+        body.createFixture(shape, 1.0f);
+        shape.dispose();
+        body.setLinearDamping(0.93f);
+        body.setAngularDamping(0.93f);
+
     }
 
     public void update(float delta, Camera cam){
         animation.update(delta);
-        this.sprite.setRotation(body.getAngle());
-        this.sprite.setPosition(cam.position.x + body.getPosition().x, cam.position.y + body.getPosition().y);
-    }
-
-    public Body createBox(World world, int x, int y, int width, int height, boolean isStatic){
-        Body pBody;
-        BodyDef def = new BodyDef();
-
-        if(isStatic) def.type = BodyDef.BodyType.StaticBody;
-        else def.type = BodyDef.BodyType.DynamicBody;
-
-        def.position.set(x / PPM, y / PPM);
-        def.fixedRotation = true;
-        pBody = world.createBody(def);
-
-        PolygonShape shape = new PolygonShape();
-        shape.setAsBox(width / 2f / PPM, height / 2f / PPM);
-        pBody.createFixture(shape, 1.0f);
-        shape.dispose();
-
-        return pBody;
+        this.sprite.setRotation((float) Math.toDegrees(body.getAngle()));
+        this.sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
+        this.label.setText(getBody().getPosition().toString() + "\n" +
+                (sprite.getX() + sprite.getWidth()/2) / PPM + " " + (sprite.getY() + sprite.getHeight() / 2) / PPM);
     }
 
     public void render(SpriteBatch sb, Camera cam) {
@@ -63,5 +63,10 @@ public class Player {
 
     public Body getBody() {
         return body;
+    }
+
+    public void dispose(){
+        animation.dispose();
+        sprite.getTexture().dispose();
     }
 }

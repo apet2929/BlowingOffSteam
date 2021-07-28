@@ -7,16 +7,17 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.moonjew.bos.BlowingOffSteam;
-import com.moonjew.bos.Map;
 import com.moonjew.bos.entities.Player;
 
 public class GameScreen implements Screen {
@@ -41,7 +42,7 @@ public class GameScreen implements Screen {
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         this.b2dr = new Box2DDebugRenderer();
-
+        initWorld();
     }
 
     @Override
@@ -58,7 +59,12 @@ public class GameScreen implements Screen {
         test.getStyle().font = this.font;
         test.setStyle(test.getStyle());
 
-        root.add(test);
+        root.add(test).top().left();
+
+        Label label = new Label(player.getBody().getPosition().toString(), skin);
+        label.setName("debug");
+        root.add(label);
+        player.label  = label;
 
     }
 
@@ -66,20 +72,19 @@ public class GameScreen implements Screen {
         Body p = player.getBody();
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            p.setAngularVelocity(p.getAngularVelocity() + 5);
+            p.setAngularVelocity(2);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            p.setAngularVelocity(p.getAngularVelocity() - 5);
+            p.setAngularVelocity(-2);
         }
-        p.setAngularDamping(0.93f);
 
         if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            p.applyForceToCenter(new Vector2(0,10).rotateDeg(p.getAngle()), false);
+            p.applyForceToCenter(new Vector2(0,10).rotateRad(p.getAngle()), false);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
         }
-        p.setLinearDamping(0.98f);
+
 
         if(p.getLinearVelocity().x > 2.5f){
             p.setLinearVelocity(2.5f, p.getLinearVelocity().y);
@@ -106,12 +111,13 @@ public class GameScreen implements Screen {
 
     public void update(float delta){
         stage.act(delta);
-        world.step(1/60f, 6, 2);
 
+        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+        player.update(delta, app.cam);
         handleInput();
         cameraUpdate();
 
-        player.update(delta, app.cam);
+        app.sb.setProjectionMatrix(app.cam.combined);
     }
 
     @Override
@@ -127,6 +133,34 @@ public class GameScreen implements Screen {
         stage.draw();
         app.sb.end();
 
+        b2dr.render(world, app.cam.combined.scl(PPM));
+
+
+    }
+
+    public void initWorld(){
+        for(int i = 0; i < 10; i++){
+            createBox((int) (i * PPM), 100, 32, 32, true);
+        }
+    }
+
+    public Body createBox(int x, int y, int width, int height, boolean isStatic){
+        Body pBody;
+        BodyDef def = new BodyDef();
+
+        if(isStatic) def.type = BodyDef.BodyType.StaticBody;
+        else def.type = BodyDef.BodyType.DynamicBody;
+
+        def.position.set(x / PPM, y / PPM);
+        def.fixedRotation = true;
+        pBody = world.createBody(def);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(width / 2f / PPM, height / 2f / PPM);
+        pBody.createFixture(shape, 1.0f);
+        shape.dispose();
+
+        return pBody;
     }
 
     @Override
@@ -151,6 +185,9 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        player.dispose();
+        world.dispose();
+        b2dr.dispose();
 
     }
 }
