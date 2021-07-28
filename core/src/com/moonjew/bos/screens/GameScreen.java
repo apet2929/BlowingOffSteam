@@ -21,10 +21,9 @@ import com.moonjew.bos.BlowingOffSteam;
 import com.moonjew.bos.entities.Player;
 
 public class GameScreen implements Screen {
-    public static final float PPM = 32;
+    public static final float PPM = 64;
 
     private final BlowingOffSteam app;
-
 
     //UI
     private Stage stage;
@@ -38,7 +37,8 @@ public class GameScreen implements Screen {
 
     public GameScreen(BlowingOffSteam app){
         this.app = app;
-        this.stage = new Stage(new FitViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT, app.cam));
+
+        this.stage = new Stage(new FitViewport(app.cam.viewportWidth, app.cam.viewportHeight, app.cam));
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         this.b2dr = new Box2DDebugRenderer();
@@ -102,8 +102,11 @@ public class GameScreen implements Screen {
 
     public void cameraUpdate() {
         Vector3 position = app.cam.position;
-        position.x = player.getBody().getPosition().x * PPM;
-        position.y = player.getBody().getPosition().y * PPM;
+
+        if (position.y <= (player.getBody().getPosition().y * PPM) + PPM * 3) {
+            position.y = player.getBody().getPosition().y * PPM + PPM * 3;
+        }
+
         app.cam.position.set(position);
         app.cam.update();
 
@@ -127,7 +130,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(delta);
-
+        app.sb.setProjectionMatrix(app.cam.combined.scl(PPM));
         app.sb.begin();
         player.render(app.sb, app.cam);
         stage.draw();
@@ -140,7 +143,7 @@ public class GameScreen implements Screen {
 
     public void initWorld(){
         for(int i = 0; i < 10; i++){
-            createBox((int) (i * PPM), 100, 32, 32, true);
+            createBox((int) (i * PPM), 100, (int)PPM, (int)PPM, true);
         }
     }
 

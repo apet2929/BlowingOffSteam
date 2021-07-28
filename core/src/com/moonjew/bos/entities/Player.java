@@ -28,13 +28,11 @@ public class Player {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
         this.sprite = new Sprite(animation.getFrame());
         this.sprite.setBounds(Gdx.graphics.getWidth()/2 - sprite.getWidth()/2 ,
-                Gdx.graphics.getHeight()/2, 50 , 50);
+                Gdx.graphics.getHeight()/2, 100, 100);
         this.sprite.setOriginCenter();
 
         BodyDef def = new BodyDef();
-
         def.type = BodyDef.BodyType.DynamicBody;
-
         def.position.set(sprite.getX() / PPM, sprite.getY() / PPM);
         body = world.createBody(def);
 
@@ -57,6 +55,7 @@ public class Player {
 
     public void render(SpriteBatch sb, Camera cam) {
         TextureRegion r = animation.getFrame();
+        sb.setProjectionMatrix(cam.combined.scl(PPM*2));
         sprite.setRegion(r);
         sprite.draw(sb);
     }
