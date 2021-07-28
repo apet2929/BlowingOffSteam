@@ -8,62 +8,51 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.moonjew.bos.Animation;
-import com.moonjew.bos.BlowingOffSteam;
+
+import static com.moonjew.bos.screens.GameScreen.PPM;
 
 public class Player {
     private Animation animation;
     private Sprite sprite;
-    private Vector2 position;
-    private Vector2 velocity;
+    private Body body;
 
-    public Player() {
+    public Player(World world) {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
         this.sprite = new Sprite(animation.getFrame());
         this.sprite.setBounds(0,0, 50, 50);
         this.sprite.setOriginCenter();
-        this.velocity = new Vector2();
-        this.position = new Vector2();
+        this.body = createBox(world, 0,0,32,32, false);
     }
 
     public void update(float delta, Camera cam){
         animation.update(delta);
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            this.sprite.rotate(delta * 75);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            this.sprite.rotate(delta * -75);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            this.velocity.rotateDeg(-sprite.getRotation());
-            this.velocity.add(0,  delta);
+        this.sprite.setRotation(body.getAngle());
+        this.sprite.setPosition(cam.position.x + body.getPosition().x, cam.position.y + body.getPosition().y);
+    }
 
-            this.velocity.rotateDeg(sprite.getRotation());
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            this.velocity.x *= 0.93;
-            this.velocity.y *= 0.93;
-        }
+    public Body createBox(World world, int x, int y, int width, int height, boolean isStatic){
+        Body pBody;
+        BodyDef def = new BodyDef();
 
-        if(this.velocity.x > 2.5f){
-            this.velocity.x = 2.5f;
-        } else if(this.velocity.x < -2.5f){
-            this.velocity.x = -2.5f;
-        }
-        if(this.velocity.y > 2.5f){
-            this.velocity.y = 2.5f;
-        } else if(this.velocity.y < -2.5f){
-            this.velocity.y = -2.5f;
-        }
+        if(isStatic) def.type = BodyDef.BodyType.StaticBody;
+        else def.type = BodyDef.BodyType.DynamicBody;
 
-        position.x += velocity.x;
-        position.y += velocity.y;
+        def.position.set(x / PPM, y / PPM);
+        def.fixedRotation = true;
+        pBody = world.createBody(def);
 
-        if(velocity.y > 0) {
-            cam.translate(0, velocity.y, 0);
-        }
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(width / 2f / PPM, height / 2f / PPM);
+        pBody.createFixture(shape, 1.0f);
+        shape.dispose();
 
-        this.sprite.setPosition(cam.position.x + position.x, cam.position.y + position.y);
+        return pBody;
     }
 
     public void render(SpriteBatch sb, Camera cam) {
@@ -72,4 +61,7 @@ public class Player {
         sprite.draw(sb);
     }
 
+    public Body getBody() {
+        return body;
+    }
 }

@@ -23,7 +23,7 @@ public class BlowingOffSteam extends Game {
 	public void create () {
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();
-		cam.setToOrtho(false, WIDTH, HEIGHT);
+		cam.setToOrtho(false, WIDTH / 2f, HEIGHT / 2f);
 
 		this.setScreen(new TitleScreen(this));
 	}
