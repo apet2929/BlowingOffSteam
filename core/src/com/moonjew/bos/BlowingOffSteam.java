@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.moonjew.bos.screens.GameScreen;
+import com.moonjew.bos.screens.TitleScreen;
 
 public class BlowingOffSteam extends Game {
 
@@ -24,7 +25,7 @@ public class BlowingOffSteam extends Game {
 		cam = new OrthographicCamera();
 		cam.setToOrtho(false, WIDTH, HEIGHT);
 
-		this.setScreen(new GameScreen(this));
+		this.setScreen(new TitleScreen(this));
 	}
 
 	@Override

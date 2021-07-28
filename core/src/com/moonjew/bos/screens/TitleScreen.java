@@ -5,30 +5,25 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.moonjew.bos.BlowingOffSteam;
-import com.moonjew.bos.entities.Player;
 
-public class GameScreen implements Screen {
-
+public class TitleScreen implements Screen {
     private final BlowingOffSteam app;
 
-    //UI
     private Stage stage;
     private Skin skin;
     private BitmapFont font;
 
-    //Game stuff
-    private Player player;
-
-    public GameScreen(BlowingOffSteam app){
+    public TitleScreen(final BlowingOffSteam app){
         this.app = app;
         this.stage = new Stage(new FitViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT, app.cam));
-        this.player = new Player();
     }
 
     @Override
@@ -36,27 +31,25 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         this.skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         this.font = new BitmapFont(Gdx.files.internal("font1.fnt"));
-
         Table root = new Table();
-        root.setFillParent(true);
         stage.addActor(root);
+        root.setFillParent(true);
 
-        TextButton test = new TextButton("Game", skin);
-        test.getStyle().font = this.font;
-        test.setStyle(test.getStyle());
-
-        root.add(test);
-
+        TextButton textButton = new TextButton("Hi", skin);
+        textButton.getStyle().font = this.font;
+        textButton.setStyle(textButton.getStyle());
+        textButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                app.setScreen(new GameScreen(app));
+            }
+        });
+        root.add(textButton);
     }
 
     public void update(float delta){
         stage.act(delta);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            app.cam.position.x += 5;
-        }
-        player.update(delta, app.cam);
     }
-
     @Override
     public void render(float delta) {
         stage.getViewport().apply();
@@ -64,11 +57,7 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(delta);
-        app.sb.begin();
-        player.render(app.sb, app.cam);
         stage.draw();
-        app.sb.end();
-
     }
 
     @Override
