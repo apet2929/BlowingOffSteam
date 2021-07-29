@@ -33,10 +33,12 @@ public class Fish {
         shape.dispose();
 
         body.setUserData("fish");
+
         body.setLinearVelocity(0.5f,0);
     }
 
     public void update(float delta){
+        animation.update(delta);
         body.setLinearVelocity(0.5f * direction, 0);
         this.moveCounter+=delta;
         if(this.moveCounter > 5){

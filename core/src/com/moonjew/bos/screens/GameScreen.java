@@ -138,7 +138,7 @@ public class GameScreen implements Screen {
         handleInput();
         cameraUpdate();
 
-        app.sb.setProjectionMatrix(app.cam.combined);
+
     }
 
     @Override
@@ -149,18 +149,19 @@ public class GameScreen implements Screen {
 
         update(delta);
 
+        app.sb.setProjectionMatrix(app.cam.combined);
         app.sb.begin();
         player.render(app.sb, app.cam);
-        stage.draw();
-
-        tmr.setView(app.cam);
-        tmr.render();
         int w = rock.getRegionWidth() / 2;
         int h = rock.getRegionHeight() / 2;
         for(Body body : rocks){
             app.sb.draw(rock, body.getPosition().x * PPM - w, body.getPosition().y * PPM - h);
         }
         app.sb.end();
+        stage.draw();
+
+        tmr.setView(app.cam);
+        tmr.render();
 
         b2dr.render(world, app.cam.combined.scl(PPM));
 
