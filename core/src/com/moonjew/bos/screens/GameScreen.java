@@ -26,6 +26,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxNativesLoader;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.moonjew.bos.BlowingOffSteam;
+import com.moonjew.bos.CollisionListener;
+import com.moonjew.bos.entities.Fish;
 import com.moonjew.bos.entities.Player;
 
 import java.util.ArrayList;
@@ -50,6 +52,7 @@ public class GameScreen implements Screen {
 
     TextureRegion rock;
     Array<Body> rocks;
+    Array<Fish> fish;
 
     public GameScreen(BlowingOffSteam app){
         this.app = app;
@@ -61,7 +64,9 @@ public class GameScreen implements Screen {
         rock = new TextureRegion(new Texture(Gdx.files.internal("rock.png")), 64, 0, 32, 32);
         tiledMap = new TmxMapLoader().load("test.tmx");
         tmr = new OrthogonalTiledMapRenderer(tiledMap);
+        fish = new Array<>();
         initWorld();
+
     }
 
     @Override
@@ -123,8 +128,13 @@ public class GameScreen implements Screen {
     public void update(float delta){
         stage.act(delta);
 
+
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
         player.update(delta, app.cam);
+        for(Fish fish : fish){
+            fish.update(delta);
+        }
+
         handleInput();
         cameraUpdate();
 
@@ -157,6 +167,7 @@ public class GameScreen implements Screen {
     }
 
     public void initWorld(){
+        world.setContactListener(new CollisionListener());
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("rocks");
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
@@ -167,6 +178,7 @@ public class GameScreen implements Screen {
                 createBox((int) ((col + 0.5f) * 32), (int) ((row + 0.5f) * 32), 32, 32, true);
             }
         }
+        fish.add(new Fish(5, 5, new Texture(Gdx.files.internal("rock.png")), world));
     }
 
     public Body createBox(int x, int y, int width, int height, boolean isStatic){
