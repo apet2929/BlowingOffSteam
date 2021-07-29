@@ -1,0 +1,47 @@
+textures.png
+size: 256, 384
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+fish1
+  rotate: false
+  xy: 0, 0
+  size: 256, 64
+  orig: 256, 64
+  offset: 0, 0
+  index: -1
+rock
+  rotate: false
+  xy: 0, 64
+  size: 256, 64
+  orig: 256, 64
+  offset: 0, 0
+  index: -1
+seaweed
+  rotate: false
+  xy: 0, 128
+  size: 256, 64
+  orig: 256, 64
+  offset: 0, 0
+  index: -1
+ship_animations
+  rotate: false
+  xy: 0, 192
+  size: 64, 96
+  orig: 64, 96
+  offset: 0, 0
+  index: -1
+umbre
+  rotate: false
+  xy: 64, 192
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+volcano
+  rotate: false
+  xy: 0, 320
+  size: 256, 64
+  orig: 256, 64
+  offset: 0, 0
+  index: -1

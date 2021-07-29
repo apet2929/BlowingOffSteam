@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -32,7 +33,6 @@ public class GameScreen implements Screen {
 
     private final BlowingOffSteam app;
 
-
     //UI
     private Stage stage;
     private Skin skin;
@@ -46,6 +46,9 @@ public class GameScreen implements Screen {
     private World world;
     private Player player;
     private CollisionListener collisionListener;
+
+    int rows;
+    Texture umbre;
 
     //Shaders
 
@@ -69,6 +72,9 @@ public class GameScreen implements Screen {
         initWorld();
 
         testTexture = new Texture(Gdx.files.internal("badlogic.jpg"));
+        rows = 50;
+        umbre = new Texture(Gdx.files.internal("umbre.png"));
+
 
     }
 
@@ -102,12 +108,13 @@ public class GameScreen implements Screen {
             p.setAngularVelocity(-player.tempTurnSpeed);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
+        if(Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)){
             if(player.steam - player.steamCost >= 0) {
                 p.applyForceToCenter(new Vector2(0, player.tempAccelSpeed).rotateRad(p.getAngle()), false);
                 player.steam -= player.steamCost;
             }
         }
+
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
         }
@@ -141,6 +148,12 @@ public class GameScreen implements Screen {
         for(Fish fish : fish){
             fish.update(delta);
         }
+        for (SteamVolcano volcano : volcanoes) {
+            volcano.update(delta);
+        }
+        for (Seaweed seaweed : seaweed) {
+            seaweed.update(delta);
+        }
 
         handleInput();
         cameraUpdate();
@@ -155,10 +168,9 @@ public class GameScreen implements Screen {
 
         update(delta);
 
-
-
         app.sb.setProjectionMatrix(app.cam.combined);
         app.sb.begin();
+        app.sb.draw(umbre, 0,0,BlowingOffSteam.WIDTH, rows * PPM);
 
         for(Seaweed seaweed : seaweed){
             seaweed.render(app.sb);
@@ -208,7 +220,7 @@ public class GameScreen implements Screen {
         }
 
         volcanoes.add(new SteamVolcano(5, 6, world));
-        fish.add(new Fish(5, 5, new Texture(Gdx.files.internal("fish1.png")), world));
+        fish.add(new Fish(5, 7, new Texture(Gdx.files.internal("fish1.png")), world));
         seaweed.add(new Seaweed(5,3, world));
         seaweed.add(new Seaweed(4, 3, world));
     }

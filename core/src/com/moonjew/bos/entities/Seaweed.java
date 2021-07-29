@@ -35,7 +35,8 @@ public class Seaweed {
         sensor.shape = shape;
         shape.dispose();
 
-        this.sprite.setPosition(body.getPosition().x * PPM, body.getPosition().y + PPM);
+        sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
+
     }
 
     public void update(float delta){
@@ -45,6 +46,7 @@ public class Seaweed {
     public void render(SpriteBatch sb){
         TextureRegion r = animation.getFrame();
         sprite.setRegion(r);
+        sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
         sprite.draw(sb);
     }
 

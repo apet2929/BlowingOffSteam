@@ -45,6 +45,8 @@ public class Fish {
         this.moveCounter+=delta;
         if(this.moveCounter > 5){
             this.direction *= -1;
+            this.sprite.setBounds(sprite.getX(), sprite.getY(), sprite.getWidth() * -1, sprite.getHeight());
+            this.sprite.setX(sprite.getX() - sprite.getWidth());
             this.moveCounter = 0;
         }
 
@@ -52,6 +54,7 @@ public class Fish {
     public void render(SpriteBatch sb){
         TextureRegion r = animation.getFrame();
         sprite.setRegion(r);
+        sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
         sprite.draw(sb);
     }
 

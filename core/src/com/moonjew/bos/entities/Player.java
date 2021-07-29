@@ -1,5 +1,6 @@
 package com.moonjew.bos.entities;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.moonjew.bos.Animation;
+import com.moonjew.bos.screens.GameScreen;
 
 import static com.moonjew.bos.screens.GameScreen.PPM;
 

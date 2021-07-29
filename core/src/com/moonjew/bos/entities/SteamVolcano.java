@@ -16,7 +16,7 @@ public class SteamVolcano {
     private Body body;
 
     public SteamVolcano(int x, int y, World world){
-        this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("badlogic.jpg")), 32, 32), 2, 0.5f);
+        this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("volcano.png"))), 4, 1f);
         this.sprite = new Sprite(animation.getFrame());
 
         BodyDef bodyDef = new BodyDef();
@@ -35,7 +35,8 @@ public class SteamVolcano {
         sensor.shape = shape;
         shape.dispose();
 
-        this.sprite.setPosition(body.getPosition().x * PPM, body.getPosition().y + PPM);
+        sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
+
     }
 
     public void update(float delta){
@@ -45,6 +46,7 @@ public class SteamVolcano {
     public void render(SpriteBatch sb){
         TextureRegion r = animation.getFrame();
         sprite.setRegion(r);
+
         sprite.draw(sb);
     }
 
