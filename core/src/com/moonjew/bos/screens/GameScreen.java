@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
@@ -34,6 +36,9 @@ public class GameScreen implements Screen {
     private Box2DDebugRenderer b2dr;
     private World world;
     private Player player;
+    SpriteBatch sb;
+    Texture worldTiles;
+    int rows;
 
     public GameScreen(BlowingOffSteam app){
         this.app = app;
@@ -42,6 +47,9 @@ public class GameScreen implements Screen {
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         this.b2dr = new Box2DDebugRenderer();
+        sb = new SpriteBatch();
+        worldTiles = new Texture("solid_tile.png");
+        rows = 50;
         initWorld();
     }
 
@@ -78,7 +86,7 @@ public class GameScreen implements Screen {
             p.setAngularVelocity(-2);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)){
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE) || Gdx.input.isKeyPressed(Input.Keys.UP)){
             p.applyForceToCenter(new Vector2(0,10).rotateRad(p.getAngle()), false);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
@@ -126,9 +134,16 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         stage.getViewport().apply();
-        Gdx.gl.glClearColor(.9f, .9f, .9f, 1);
+        //Gdx.gl.glClearColor(.9f, .9f, .9f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        sb.begin();
+        for(int i = 0; i < rows; i++) {
+            int yCoord = i * (int) PPM;
+            sb.setColor(1,(float) i/(float)rows * 10,1,1);
+            sb.draw(worldTiles, 0, yCoord - (app.cam.position.y)/10, BlowingOffSteam.WIDTH, 64);
+            sb.setColor(1,1,1,1);
+        }
+        sb.end();
         update(delta);
         app.sb.setProjectionMatrix(app.cam.combined.scl(PPM));
         app.sb.begin();
@@ -142,9 +157,14 @@ public class GameScreen implements Screen {
     }
 
     public void initWorld(){
-        for(int i = 0; i < 10; i++){
-            createBox((int) (i * PPM), 100, (int)PPM, (int)PPM, true);
+        for(int i = 0; i < rows; i++){
+            for(int j = 0; j < app.cam.viewportWidth / PPM; j++){
+                if(Math.random() * 100 > 90) createBox((int) (j * PPM), (int) (500 + i * PPM), (int)PPM, (int)PPM, true);
+            }
         }
+        createBox(0, 150, (int) app.cam.viewportWidth * 2, 2, true);
+        createBox(-1, (int)app.cam.position.y, 10, 10000, true);
+        createBox((int) (14 * PPM), (int)app.cam.position.y, 10, 10000, true);
     }
 
     public Body createBox(int x, int y, int width, int height, boolean isStatic){

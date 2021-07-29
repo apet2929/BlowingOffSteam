@@ -47,8 +47,10 @@ public class Player {
 
     public void update(float delta, Camera cam){
         animation.update(delta);
+
         this.sprite.setRotation((float) Math.toDegrees(body.getAngle()));
         this.sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
+
         this.label.setText(getBody().getPosition().toString() + "\n" +
                 (sprite.getX() + sprite.getWidth()/2) / PPM + " " + (sprite.getY() + sprite.getHeight() / 2) / PPM);
     }
