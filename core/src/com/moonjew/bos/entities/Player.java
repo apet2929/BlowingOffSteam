@@ -23,6 +23,14 @@ public class Player {
     private Sprite sprite;
     private Body body;
 
+//    Game mechanics
+
+    public float steam;
+    public float accelSpeed;
+    public float turnSpeed;
+    public float maxSpeed;
+    public float steamCost;
+
     public Player(World world) {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
         this.sprite = new Sprite(animation.getFrame());
@@ -44,12 +52,26 @@ public class Player {
         body.setLinearDamping(0.93f);
         body.setAngularDamping(0.93f);
 
+        this.steam = 20f;
+        this.accelSpeed = 10f;
+        this.turnSpeed = 2f;
+        this.maxSpeed = 2.5f;
+        this.steamCost = 0.1f;
+
     }
 
     public void update(float delta, Camera cam){
         animation.update(delta);
         this.sprite.setRotation((float) Math.toDegrees(body.getAngle()));
         this.sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
+
+        if(steam < 0) steam = 0;
+        if(steam < accelSpeed) {
+            accelSpeed = maxSpeed * (steam / accelSpeed);
+        }
+//        steam > 10 -> max speed
+//        steam = 9 -> max speed * 9 / 10
+
     }
 
     public void render(SpriteBatch sb, Camera cam) {

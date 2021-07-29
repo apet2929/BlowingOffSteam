@@ -3,10 +3,12 @@ package com.moonjew.bos.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -42,6 +44,7 @@ public class GameScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private BitmapFont font;
+    private Label steamLabel;
 
     //Game stuff
     private TiledMap tiledMap;
@@ -50,9 +53,14 @@ public class GameScreen implements Screen {
     private World world;
     private Player player;
 
-    TextureRegion rock;
-    Array<Body> rocks;
+    //Shaders
+    String vertexShader;
+    String fragmentShader;
+    ShaderProgram shaderProgram;
+
     Array<Fish> fish;
+
+    Texture testTexture;
 
     public GameScreen(BlowingOffSteam app){
         this.app = app;
@@ -60,12 +68,16 @@ public class GameScreen implements Screen {
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         this.b2dr = new Box2DDebugRenderer();
-        rocks = new Array<>(100);
-        rock = new TextureRegion(new Texture(Gdx.files.internal("rock.png")), 64, 0, 32, 32);
         tiledMap = new TmxMapLoader().load("test.tmx");
         tmr = new OrthogonalTiledMapRenderer(tiledMap);
         fish = new Array<>();
         initWorld();
+
+        vertexShader = Gdx.files.internal("vertex.glsl").readString();
+        fragmentShader = Gdx.files.internal("shader.glsl").readString();
+        shaderProgram = new ShaderProgram(vertexShader, fragmentShader);
+
+        testTexture = new Texture(Gdx.files.internal("badlogic.jpg"));
 
     }
 
@@ -85,34 +97,39 @@ public class GameScreen implements Screen {
 
         root.add(test).top().left();
 
+        steamLabel = new Label("Steam: ", skin);
+
     }
 
     public void handleInput(){
         Body p = player.getBody();
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            p.setAngularVelocity(2);
+            p.setAngularVelocity(player.turnSpeed);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            p.setAngularVelocity(-2);
+            p.setAngularVelocity(-player.turnSpeed);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-            p.applyForceToCenter(new Vector2(0,10).rotateRad(p.getAngle()), false);
+            if(player.steam - player.steamCost >= 0) {
+                p.applyForceToCenter(new Vector2(0, player.accelSpeed).rotateRad(p.getAngle()), false);
+                player.steam -= player.steamCost;
+            }
         }
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
         }
 
-        if(p.getLinearVelocity().x > 2.5f){
-            p.setLinearVelocity(2.5f, p.getLinearVelocity().y);
-        } else if(p.getLinearVelocity().x < -2.5f){
-            p.setLinearVelocity(-2.5f, p.getLinearVelocity().y);
+        if(p.getLinearVelocity().x > player.maxSpeed){
+            p.setLinearVelocity(player.maxSpeed, p.getLinearVelocity().y);
+        } else if(p.getLinearVelocity().x < -player.maxSpeed){
+            p.setLinearVelocity(-player.maxSpeed, p.getLinearVelocity().y);
         }
-        if(p.getLinearVelocity().y > 2.5f){
-            p.setLinearVelocity(p.getLinearVelocity().x, 2.5f);
-        } else if(p.getLinearVelocity().y < -2.5f){
-            p.setLinearVelocity(p.getLinearVelocity().x, -2.5f);
+        if(p.getLinearVelocity().y > player.maxSpeed){
+            p.setLinearVelocity(p.getLinearVelocity().x, player.maxSpeed);
+        } else if(p.getLinearVelocity().y < -player.maxSpeed){
+            p.setLinearVelocity(p.getLinearVelocity().x, -player.maxSpeed);
         }
     }
 
@@ -138,7 +155,6 @@ public class GameScreen implements Screen {
         handleInput();
         cameraUpdate();
 
-
     }
 
     @Override
@@ -149,21 +165,31 @@ public class GameScreen implements Screen {
 
         update(delta);
 
+
+
         app.sb.setProjectionMatrix(app.cam.combined);
         app.sb.begin();
+
         player.render(app.sb, app.cam);
-        int w = rock.getRegionWidth() / 2;
-        int h = rock.getRegionHeight() / 2;
-        for(Body body : rocks){
-            app.sb.draw(rock, body.getPosition().x * PPM - w, body.getPosition().y * PPM - h);
-        }
+
         app.sb.end();
+
         stage.draw();
 
         tmr.setView(app.cam);
         tmr.render();
 
         b2dr.render(world, app.cam.combined.scl(PPM));
+
+        app.sb.begin();
+
+        String steamText = "Steam: " + String.format("%.2f", player.steam);;
+        steamLabel.setText(steamText);
+        steamLabel.setX(app.cam.position.x - Gdx.graphics.getWidth()/2f);
+        steamLabel.setY(app.cam.position.y - Gdx.graphics.getHeight()/2f);
+        steamLabel.draw(app.sb, 0.5f);
+
+        app.sb.end();
 
     }
 
