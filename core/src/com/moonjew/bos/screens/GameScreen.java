@@ -4,7 +4,13 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
@@ -16,9 +22,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxNativesLoader;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.moonjew.bos.BlowingOffSteam;
 import com.moonjew.bos.entities.Player;
+
+import java.util.ArrayList;
 
 public class GameScreen implements Screen {
     public static final float PPM = 32;
@@ -32,9 +42,14 @@ public class GameScreen implements Screen {
     private BitmapFont font;
 
     //Game stuff
+    private TiledMap tiledMap;
+    private OrthogonalTiledMapRenderer tmr;
     private Box2DDebugRenderer b2dr;
     private World world;
     private Player player;
+
+    TextureRegion rock;
+    Array<Body> rocks;
 
     public GameScreen(BlowingOffSteam app){
         this.app = app;
@@ -42,6 +57,10 @@ public class GameScreen implements Screen {
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         this.b2dr = new Box2DDebugRenderer();
+        rocks = new Array<>(100);
+        rock = new TextureRegion(new Texture(Gdx.files.internal("rock.png")), 64, 0, 32, 32);
+        tiledMap = new TmxMapLoader().load("test.tmx");
+        tmr = new OrthogonalTiledMapRenderer(tiledMap);
         initWorld();
     }
 
@@ -60,11 +79,6 @@ public class GameScreen implements Screen {
         test.setStyle(test.getStyle());
 
         root.add(test).top().left();
-
-        Label label = new Label(player.getBody().getPosition().toString(), skin);
-        label.setName("debug");
-        root.add(label);
-        player.label  = label;
 
     }
 
@@ -85,7 +99,6 @@ public class GameScreen implements Screen {
             p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
         }
 
-
         if(p.getLinearVelocity().x > 2.5f){
             p.setLinearVelocity(2.5f, p.getLinearVelocity().y);
         } else if(p.getLinearVelocity().x < -2.5f){
@@ -96,8 +109,6 @@ public class GameScreen implements Screen {
         } else if(p.getLinearVelocity().y < -2.5f){
             p.setLinearVelocity(p.getLinearVelocity().x, -2.5f);
         }
-
-
     }
 
     public void cameraUpdate() {
@@ -131,16 +142,30 @@ public class GameScreen implements Screen {
         app.sb.begin();
         player.render(app.sb, app.cam);
         stage.draw();
+
+        tmr.setView(app.cam);
+        tmr.render();
+        int w = rock.getRegionWidth() / 2;
+        int h = rock.getRegionHeight() / 2;
+        for(Body body : rocks){
+            app.sb.draw(rock, body.getPosition().x * PPM - w, body.getPosition().y * PPM - h);
+        }
         app.sb.end();
 
         b2dr.render(world, app.cam.combined.scl(PPM));
 
-
     }
 
     public void initWorld(){
-        for(int i = 0; i < 10; i++){
-            createBox((int) (i * PPM), 100, 32, 32, true);
+        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("rocks");
+        for (int row = 0; row < layer.getHeight(); row++) {
+            for (int col = 0; col < layer.getWidth(); col++) {
+                TiledMapTileLayer.Cell cell = layer.getCell(col, row);
+                if(cell == null) continue;
+                if(cell.getTile() == null) continue;
+
+                createBox((int) ((col + 0.5f) * 32), (int) ((row + 0.5f) * 32), 32, 32, true);
+            }
         }
     }
 

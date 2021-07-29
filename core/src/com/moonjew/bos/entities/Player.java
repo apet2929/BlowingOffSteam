@@ -22,7 +22,6 @@ public class Player {
     private Animation animation;
     private Sprite sprite;
     private Body body;
-    public Label label;
 
     public Player(World world) {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
@@ -51,8 +50,6 @@ public class Player {
         animation.update(delta);
         this.sprite.setRotation((float) Math.toDegrees(body.getAngle()));
         this.sprite.setPosition( body.getPosition().x * PPM - sprite.getWidth()/2, body.getPosition().y * PPM - sprite.getHeight()/2);
-        this.label.setText(getBody().getPosition().toString() + "\n" +
-                (sprite.getX() + sprite.getWidth()/2) / PPM + " " + (sprite.getY() + sprite.getHeight() / 2) / PPM);
     }
 
     public void render(SpriteBatch sb, Camera cam) {
