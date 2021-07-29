@@ -29,7 +29,8 @@ public class Fish {
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(((sprite.getWidth() / 2f) - 8) / PPM, ((sprite.getHeight() / 2f) - 8) / PPM);
-        body.createFixture(shape, 1.0f);
+
+        body.createFixture(shape, 0.5f);
         shape.dispose();
 
         body.setUserData("fish");

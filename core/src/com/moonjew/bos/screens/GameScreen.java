@@ -3,11 +3,9 @@ package com.moonjew.bos.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -16,23 +14,18 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.GdxNativesLoader;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.moonjew.bos.BlowingOffSteam;
 import com.moonjew.bos.CollisionListener;
 import com.moonjew.bos.entities.Fish;
 import com.moonjew.bos.entities.Player;
-
-import java.util.ArrayList;
+import com.moonjew.bos.entities.SteamVolcano;
 
 public class GameScreen implements Screen {
     public static final float PPM = 32;
@@ -52,6 +45,7 @@ public class GameScreen implements Screen {
     private Box2DDebugRenderer b2dr;
     private World world;
     private Player player;
+    private CollisionListener collisionListener;
 
     //Shaders
     String vertexShader;
@@ -59,6 +53,7 @@ public class GameScreen implements Screen {
     ShaderProgram shaderProgram;
 
     Array<Fish> fish;
+    Array<SteamVolcano> volcanos;
 
     Texture testTexture;
 
@@ -71,6 +66,8 @@ public class GameScreen implements Screen {
         tiledMap = new TmxMapLoader().load("test.tmx");
         tmr = new OrthogonalTiledMapRenderer(tiledMap);
         fish = new Array<>();
+        volcanos = new Array<>();
+        collisionListener = new CollisionListener(player);
         initWorld();
 
         vertexShader = Gdx.files.internal("vertex.glsl").readString();
@@ -78,6 +75,7 @@ public class GameScreen implements Screen {
         shaderProgram = new ShaderProgram(vertexShader, fragmentShader);
 
         testTexture = new Texture(Gdx.files.internal("badlogic.jpg"));
+
 
     }
 
@@ -105,15 +103,15 @@ public class GameScreen implements Screen {
         Body p = player.getBody();
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            p.setAngularVelocity(player.turnSpeed);
+            p.setAngularVelocity(player.tempTurnSpeed);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            p.setAngularVelocity(-player.turnSpeed);
+            p.setAngularVelocity(-player.tempTurnSpeed);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.UP)){
             if(player.steam - player.steamCost >= 0) {
-                p.applyForceToCenter(new Vector2(0, player.accelSpeed).rotateRad(p.getAngle()), false);
+                p.applyForceToCenter(new Vector2(0, player.tempAccelSpeed).rotateRad(p.getAngle()), false);
                 player.steam -= player.steamCost;
             }
         }
@@ -121,15 +119,15 @@ public class GameScreen implements Screen {
             p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
         }
 
-        if(p.getLinearVelocity().x > player.maxSpeed){
-            p.setLinearVelocity(player.maxSpeed, p.getLinearVelocity().y);
-        } else if(p.getLinearVelocity().x < -player.maxSpeed){
-            p.setLinearVelocity(-player.maxSpeed, p.getLinearVelocity().y);
+        if(p.getLinearVelocity().x > player.tempMaxSpeed){
+            p.setLinearVelocity(player.tempMaxSpeed, p.getLinearVelocity().y);
+        } else if(p.getLinearVelocity().x < -player.tempMaxSpeed){
+            p.setLinearVelocity(-player.tempMaxSpeed, p.getLinearVelocity().y);
         }
-        if(p.getLinearVelocity().y > player.maxSpeed){
-            p.setLinearVelocity(p.getLinearVelocity().x, player.maxSpeed);
-        } else if(p.getLinearVelocity().y < -player.maxSpeed){
-            p.setLinearVelocity(p.getLinearVelocity().x, -player.maxSpeed);
+        if(p.getLinearVelocity().y > player.tempMaxSpeed){
+            p.setLinearVelocity(p.getLinearVelocity().x, player.tempMaxSpeed);
+        } else if(p.getLinearVelocity().y < -player.tempMaxSpeed){
+            p.setLinearVelocity(p.getLinearVelocity().x, -player.tempMaxSpeed);
         }
     }
 
@@ -194,7 +192,7 @@ public class GameScreen implements Screen {
     }
 
     public void initWorld(){
-        world.setContactListener(new CollisionListener());
+        world.setContactListener(collisionListener);
         TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("rocks");
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
@@ -205,6 +203,7 @@ public class GameScreen implements Screen {
                 createBox((int) ((col + 0.5f) * 32), (int) ((row + 0.5f) * 32), 32, 32, true);
             }
         }
+        volcanos.add(new SteamVolcano(5, 6, world));
         fish.add(new Fish(5, 5, new Texture(Gdx.files.internal("rock.png")), world));
     }
 

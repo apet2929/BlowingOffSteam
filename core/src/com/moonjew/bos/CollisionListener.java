@@ -1,32 +1,58 @@
 package com.moonjew.bos;
 
 import com.badlogic.gdx.physics.box2d.*;
+import com.moonjew.bos.entities.Player;
 
 public class CollisionListener implements ContactListener {
+
+    private Player player;
+
+    public CollisionListener(Player player){
+        this.player = player;
+    }
+
     @Override
     public void beginContact(Contact contact) {
         System.out.println("Contact");
         Fixture fa = contact.getFixtureA();
         Fixture fb = contact.getFixtureB();
-        System.out.println(fa.getBody().getType() + " has hit " + fb.getBody().getType());
         Body a = fa.getBody();
         Body b = fb.getBody();
-        if(a.getUserData() != null && b.getType().equals(BodyDef.BodyType.StaticBody)){
-            if(a.getUserData().equals("fish")) {
-                System.out.println("True");
-//                a.setLinearVelocity(a.getLinearVelocity().scl(-1, 1));
-            }
-        } else if(b.getUserData() != null && a.getType().equals(BodyDef.BodyType.StaticBody)) {
-            if(b.getUserData().equals("fish")) {
-                System.out.println("True");
-//                b.setLinearVelocity(b.getLinearVelocity().scl(-1, 1));
+        System.out.println(fa.getBody().getType() + " has hit " + fb.getBody().getType());
+
+        if(fa.isSensor() || fb.isSensor()){
+            System.out.println("True???");
+            String strA = (String) a.getUserData();
+            String strB = (String) b.getUserData();
+            if(strA != null && strB != null) {
+                if (strA.equals("player") || strB.equals("player")) {
+                    System.out.println("PLAYER HIT VOLCANO");
+                    player.inVolcano = true;
+                }
             }
         }
+
     }
 
     @Override
     public void endContact(Contact contact) {
+        Fixture fa = contact.getFixtureA();
+        Fixture fb = contact.getFixtureB();
 
+        if(fa.isSensor() || fb.isSensor()){
+            System.out.println("True???");
+//            Player left volcano
+            Body a = fa.getBody();
+            Body b = fb.getBody();
+            String strA = (String) a.getUserData();
+            String strB = (String) b.getUserData();
+            if(strA != null && strB != null) {
+                if (strA.equals("player") || strB.equals("player")) {
+                    System.out.println("PLAYER LEFT VOLCANO");
+                    player.inVolcano = false;
+                }
+            }
+        }
     }
 
     @Override
