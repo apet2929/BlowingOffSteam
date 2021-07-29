@@ -2,6 +2,7 @@ package com.moonjew.bos.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -17,7 +18,7 @@ public class Fish {
     private Body body;
 
     public Fish(int x, int y, Texture texture, World world){
-        this.animation = new Animation(new TextureRegion(texture), texture.getWidth()/32, 1.0f);
+        this.animation = new Animation(new TextureRegion(texture), 4, 1.0f);
         this.sprite = new Sprite(animation.getFrame());
         moveCounter = 0;
         direction = 1;
@@ -48,6 +49,12 @@ public class Fish {
         }
 
     }
+    public void render(SpriteBatch sb){
+        TextureRegion r = animation.getFrame();
+        sprite.setRegion(r);
+        sprite.draw(sb);
+    }
+
 
 
 }

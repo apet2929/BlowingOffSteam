@@ -5,6 +5,8 @@ import com.moonjew.bos.entities.Player;
 
 public class CollisionListener implements ContactListener {
 
+    public static final short SEAWEED_MASK = 2;
+
     private Player player;
 
     public CollisionListener(Player player){
@@ -26,8 +28,13 @@ public class CollisionListener implements ContactListener {
             String strB = (String) b.getUserData();
             if(strA != null && strB != null) {
                 if (strA.equals("player") || strB.equals("player")) {
-                    System.out.println("PLAYER HIT VOLCANO");
-                    player.inVolcano = true;
+                    if (strA.equals("volcano") || strB.equals("volcano")) {
+                        System.out.println("PLAYER HIT VOLCANO");
+                        player.inVolcano = true;
+                    } else if (strA.equals("seaweed") || strB.equals("seaweed")) {
+                        player.inSeaweed = true;
+                    }
+
                 }
             }
         }
@@ -47,9 +54,13 @@ public class CollisionListener implements ContactListener {
             String strA = (String) a.getUserData();
             String strB = (String) b.getUserData();
             if(strA != null && strB != null) {
-                if (strA.equals("player") || strB.equals("player")) {
-                    System.out.println("PLAYER LEFT VOLCANO");
-                    player.inVolcano = false;
+                if(strA.equals("player") || strB.equals("player")) {
+                    if (strA.equals("volcano") || strB.equals("volcano")) {
+                        System.out.println("PLAYER LEFT VOLCANO");
+                        player.inVolcano = false;
+                    } else if (strA.equals("seaweed") || strB.equals("seaweed")) {
+                        player.inSeaweed = false;
+                    }
                 }
             }
         }

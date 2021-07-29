@@ -6,7 +6,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -25,6 +24,7 @@ import com.moonjew.bos.BlowingOffSteam;
 import com.moonjew.bos.CollisionListener;
 import com.moonjew.bos.entities.Fish;
 import com.moonjew.bos.entities.Player;
+import com.moonjew.bos.entities.Seaweed;
 import com.moonjew.bos.entities.SteamVolcano;
 
 public class GameScreen implements Screen {
@@ -50,8 +50,8 @@ public class GameScreen implements Screen {
     //Shaders
 
     Array<Fish> fish;
-    Array<SteamVolcano> volcanos;
-
+    Array<SteamVolcano> volcanoes;
+    Array<Seaweed> seaweed;
     Texture testTexture;
 
     public GameScreen(BlowingOffSteam app){
@@ -63,7 +63,8 @@ public class GameScreen implements Screen {
         tiledMap = new TmxMapLoader().load("test.tmx");
         tmr = new OrthogonalTiledMapRenderer(tiledMap);
         fish = new Array<>();
-        volcanos = new Array<>();
+        volcanoes = new Array<>();
+        seaweed = new Array<>();
         collisionListener = new CollisionListener(player);
         initWorld();
 
@@ -135,8 +136,6 @@ public class GameScreen implements Screen {
 
     public void update(float delta){
         stage.act(delta);
-
-
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
         player.update(delta, app.cam);
         for(Fish fish : fish){
@@ -160,6 +159,16 @@ public class GameScreen implements Screen {
 
         app.sb.setProjectionMatrix(app.cam.combined);
         app.sb.begin();
+
+        for(Seaweed seaweed : seaweed){
+            seaweed.render(app.sb);
+        }
+        for(SteamVolcano volcano : volcanoes){
+            volcano.render(app.sb);
+        }
+        for(Fish fish : fish){
+            fish.render(app.sb);
+        }
 
         player.render(app.sb, app.cam);
 
@@ -198,8 +207,10 @@ public class GameScreen implements Screen {
             }
         }
 
-        volcanos.add(new SteamVolcano(5, 6, world));
-        fish.add(new Fish(5, 5, new Texture(Gdx.files.internal("rock.png")), world));
+        volcanoes.add(new SteamVolcano(5, 6, world));
+        fish.add(new Fish(5, 5, new Texture(Gdx.files.internal("fish1.png")), world));
+        seaweed.add(new Seaweed(5,3, world));
+        seaweed.add(new Seaweed(4, 3, world));
     }
 
     public Body createBox(int x, int y, int width, int height, boolean isStatic){

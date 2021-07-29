@@ -31,7 +31,9 @@ public class Player {
     public float tempTurnSpeed;
     public float tempMaxSpeed;
     public float steamCost;
+
     public boolean inVolcano;
+    public boolean inSeaweed;
 
     public Player(World world) {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
@@ -76,11 +78,15 @@ public class Player {
             if(steam + 5 * steamCost <= maxSteam) steam += 5 * steamCost;
             else steam = maxSteam;
         }
+        if(inSeaweed){
+            tempMaxSpeed = maxSpeed/2;
+            tempAccelSpeed = accelSpeed/2;
+        }
 
         if(steam < 0) steam = 0;
         else if(steam < tempAccelSpeed) {
             tempAccelSpeed = tempMaxSpeed * (steam / tempAccelSpeed);
-        } else {
+        } else if(!inSeaweed) {
             this.tempAccelSpeed = accelSpeed;
             this.tempTurnSpeed = turnSpeed;
             this.tempMaxSpeed = maxSpeed;
