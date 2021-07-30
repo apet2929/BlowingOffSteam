@@ -45,10 +45,14 @@ public class GameScreen implements Screen {
     private BitmapFont font;
     private Table root;
     private Label steamLabel;
+    private Label scoreLabel;
+    private float score;
 
     private TextButton restartButton;
 
     //Game stuff
+    private int level;
+    private Array<TiledMap> levels;
     private TiledMap tiledMap;
     private TiledMapTileLayer rockLayer;
     private OrthogonalTiledMapRenderer tmr;
@@ -56,13 +60,10 @@ public class GameScreen implements Screen {
     private World world;
     private Player player;
     private CollisionListener collisionListener;
-    SpriteBatch sb;
     int rows;
     Texture umbre;
     Texture steamBar;
     Texture emptyBar;
-
-    //Shaders
 
     Array<Fish> fish;
     Array<SteamVolcano> volcanoes;
@@ -73,14 +74,24 @@ public class GameScreen implements Screen {
         this.app = app;
         this.stage = new Stage(new StretchViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT));
 
+        level = 0;
+        loadLevels();
         initWorld();
 
         testTexture = new Texture(Gdx.files.internal("badlogic.jpg"));
         rows = 50;
         umbre = new Texture(Gdx.files.internal("umbre.png"));
         steamBar = new Texture("steambar.png");
-        sb = new SpriteBatch();
         emptyBar = new Texture("emptybar.png");
+
+    }
+
+    public void loadLevels(){
+        levels = new Array<>();
+        TmxMapLoader loader = new TmxMapLoader();
+        levels.add(loader.load("test.tmx"));
+        levels.add(loader.load("level1.tmx"));
+        levels.add(loader.load("lvl2.tmx"));
     }
 
     public void initWorld(){
@@ -90,7 +101,6 @@ public class GameScreen implements Screen {
 
         collisionListener = new CollisionListener(player);
 
-        tiledMap = new TmxMapLoader().load("test.tmx");
         tmr = new OrthogonalTiledMapRenderer(tiledMap);
 
         fish = new Array<>();
@@ -100,7 +110,7 @@ public class GameScreen implements Screen {
         app.cam.position.set(player.getBody().getPosition().x * PPM, player.getBody().getPosition().y * PPM, 0);
 
         world.setContactListener(collisionListener);
-        TiledMapTileLayer layer = (TiledMapTileLayer) tiledMap.getLayers().get("rocks");
+        TiledMapTileLayer layer = (TiledMapTileLayer) levels.get(level).getLayers().get("rocks");
         rockLayer = layer;
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
@@ -121,7 +131,7 @@ public class GameScreen implements Screen {
 //                createBox((int) ((col + 0.5f) * PPM), (int) ((row + 0.5f) * PPM), (int)PPM, (int)PPM, true);
 //            }
 //        }
-        layer = (TiledMapTileLayer) tiledMap.getLayers().get("seaweed");
+        layer = (TiledMapTileLayer) levels.get(level).getLayers().get("seaweed");
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
                 TiledMapTileLayer.Cell cell = layer.getCell(col, row);
@@ -133,7 +143,7 @@ public class GameScreen implements Screen {
         }
 
         Texture fishTexture = new Texture(Gdx.files.internal("fish1.png"));
-        layer = (TiledMapTileLayer) tiledMap.getLayers().get("fish");
+        layer = (TiledMapTileLayer) levels.get(level).getLayers().get("fish");
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
                 TiledMapTileLayer.Cell cell = layer.getCell(col, row);
@@ -144,11 +154,28 @@ public class GameScreen implements Screen {
             }
         }
 
+        layer = (TiledMapTileLayer) levels.get(level).getLayers().get("volcanoes");
+        if(layer != null) {
+            for (int row = 0; row < layer.getHeight(); row++) {
+                for (int col = 0; col < layer.getWidth(); col++) {
+                    TiledMapTileLayer.Cell cell = layer.getCell(col, row);
+                    if (cell == null) continue;
+                    if (cell.getTile() == null) continue;
+
+                    volcanoes.add(new SteamVolcano(col + 0.5f, row + 0.5f, world));
+                }
+            }
+        }
+
+        createBoxScaled(-1, -2, 1, 102, true);
+        createBoxScaled(11, -2, 1, 102, true);
+
 //        volcanoes.add(new SteamVolcano(5, 6, world));
 //        fish.add(new Fish(5, 7, new Texture(Gdx.files.internal("fish1.png")), world));
 //        seaweed.add(new Seaweed(5,3, world));
 //        seaweed.add(new Seaweed(4, 3, world));
     }
+
 
     @Override
     public void show() {
@@ -175,7 +202,10 @@ public class GameScreen implements Screen {
         });
 
         steamLabel = new Label("Steam: ", skin);
-
+        scoreLabel = new Label("Score: ", skin);
+        scoreLabel.getStyle().font = font;
+        scoreLabel.setStyle(scoreLabel.getStyle());
+        scoreLabel.setColor(1,1,1,1);
     }
 
     public void handleInput(){
@@ -193,11 +223,16 @@ public class GameScreen implements Screen {
                 player.createBubble();
                 p.applyForceToCenter(new Vector2(0, player.tempAccelSpeed).rotateRad(p.getAngle()), false);
                 player.steam -= player.steamCost;
+
             }
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+            level++;
+            initWorld();
         }
 
         if(p.getLinearVelocity().x > player.tempMaxSpeed){
@@ -239,9 +274,13 @@ public class GameScreen implements Screen {
         handleInput();
         cameraUpdate();
 
-        if(Math.round(player.steam) <= 0){
+        if(Math.round(player.steam) <= 0 || player.getBody().getPosition().y * PPM + PPM/2f< app.cam.position.y - app.cam.viewportHeight/2f){
+            player.steam = 0;
             root.add(restartButton).top().left();
         }
+
+        score += delta * 8.5f;
+        scoreLabel.setText("Score: " + (int) score);
 
     }
 
@@ -255,7 +294,7 @@ public class GameScreen implements Screen {
 
         app.sb.setProjectionMatrix(app.cam.combined);
         app.sb.begin();
-        app.sb.draw(umbre, 0,0,BlowingOffSteam.WIDTH, rows * PPM);
+        app.sb.draw(umbre, 0,app.cam.position.y * 0.5f - 200, BlowingOffSteam.WIDTH, rows * PPM);
 
         for(Seaweed seaweed : seaweed){
             seaweed.render(app.sb);
@@ -270,36 +309,27 @@ public class GameScreen implements Screen {
         player.render(app.sb, app.cam);
         app.sb.end();
 
-        stage.draw();
-
         tmr.setView(app.cam);
         tmr.getBatch().begin();
         tmr.renderTileLayer(rockLayer);
         tmr.getBatch().end();
 
-//        b2dr.render(world, app.cam.combined.scl(PPM));
+        b2dr.render(world, app.cam.combined.scl(PPM));
 
         app.sb.begin();
 
-        String steamText = "Steam: " + String.format("%.2f", player.steam);;
-        steamLabel.setText(steamText);
-        steamLabel.setX(app.cam.position.x - Gdx.graphics.getWidth()/2f);
-        steamLabel.setY(app.cam.position.y - Gdx.graphics.getHeight()/2f);
-        steamLabel.draw(app.sb, 0.5f);
+        scoreLabel.setX(app.cam.position.x - Gdx.graphics.getWidth()/2f);
+        scoreLabel.setY(app.cam.position.y - Gdx.graphics.getHeight()/2f);
+        scoreLabel.draw(app.sb, 0.5f);
 
-        app.sb.setColor(1,1,1,0.2f);
-
-        app.sb.draw(umbre, 0,0,BlowingOffSteam.WIDTH, -Gdx.graphics.getHeight() * 2);
-
+        app.sb.draw(emptyBar, app.cam.position.x - 150, app.cam.position.y + 275, 300, 15);
+        app.sb.draw(steamBar, app.cam.position.x - 150, app.cam.position.y + 275, player.steam * 3, 15);
         app.sb.end();
-        sb.begin();
-        sb.draw(emptyBar, 170, 580, 300, 15);
-        sb.draw(steamBar, 170, 580, player.steam * 3, 15);
-        sb.end();
 
+        stage.draw();
     }
 
-    public Body createBox(int x, int y, int width, int height, boolean isStatic){
+    public Body createBox(float x, float y, float width, float height, boolean isStatic){
         Body pBody;
         BodyDef def = new BodyDef();
 
@@ -316,6 +346,10 @@ public class GameScreen implements Screen {
         shape.dispose();
 
         return pBody;
+    }
+
+    public Body createBoxScaled(float x, float y, float width, float height, boolean isStatic){
+        return createBox(x * PPM, y * PPM, width * PPM, height * PPM, isStatic);
     }
 
     @Override

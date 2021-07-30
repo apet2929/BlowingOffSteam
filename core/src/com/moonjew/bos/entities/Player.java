@@ -22,6 +22,7 @@ import static com.moonjew.bos.screens.GameScreen.PPM;
 
 public class Player {
     private Animation animation;
+    private Animation hitAnimation;
     private Sprite sprite;
     private Body body;
     private Array<Sprite> bubbles;
@@ -41,9 +42,13 @@ public class Player {
 
     public boolean inVolcano;
     public boolean inSeaweed;
+    public boolean hit;
+    private float hitCounter;
+    private final float maxHitCounter = 0.5f;
 
     public Player(World world) {
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 64, 32), 2, 0.5f);
+        this.hitAnimation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("ship_animations.png")), 0, 32, 64, 32), 2, 0.5f);
         this.sprite = new Sprite(animation.getFrame());
         this.sprite.setBounds(Gdx.graphics.getWidth()/2f - sprite.getWidth()/2 ,
                 Gdx.graphics.getHeight()/2f, PPM , PPM);
@@ -54,7 +59,7 @@ public class Player {
         def.type = BodyDef.BodyType.DynamicBody;
 
         float spawnX = 0.25f;
-        float spawnY = -3;
+        float spawnY = -2;
         def.position.set((sprite.getX() / PPM) + spawnX, (sprite.getY() / PPM) + spawnY);
         body = world.createBody(def);
 
@@ -76,6 +81,8 @@ public class Player {
         this.steamCost = 0.1f;
 
         this.bubbles = new Array<>(30);
+
+        this.hitCounter = 0;
 
     }
 
@@ -112,10 +119,26 @@ public class Player {
             }
         }
 
+        if(hit){
+            hit = false;
+            hitCounter += delta;
+        }
+
+        if(hitCounter != 0){
+            hitCounter += delta;
+            hitAnimation.update(delta);
+            if(hitCounter >= maxHitCounter){
+                hit = false;
+                hitCounter = 0;
+            }
+        }
+
     }
 
     public void render(SpriteBatch sb, Camera cam) {
-        TextureRegion r = animation.getFrame();
+        TextureRegion r;
+        if(hitCounter == 0) r = animation.getFrame();
+        else r = hitAnimation.getFrame();
         sprite.setRegion(r);
         sb.setProjectionMatrix(cam.combined);
         for(Sprite bubble : bubbles){

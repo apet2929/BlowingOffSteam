@@ -1,7 +1,10 @@
 package com.moonjew.bos;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.moonjew.bos.entities.Player;
+
+import static com.moonjew.bos.screens.GameScreen.PPM;
 
 public class CollisionListener implements ContactListener {
 
@@ -42,7 +45,7 @@ public class CollisionListener implements ContactListener {
                 if (strA.equals("player") || strB.equals("player")) {
                     if (strA.equals("fish") || strB.equals("fish")) {
                         player.steam -= 15;
-
+                        player.hit = true;
                     }
                 }
             }
