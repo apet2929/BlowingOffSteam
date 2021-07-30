@@ -15,7 +15,7 @@ public class Seaweed {
     public Sprite sprite;
     private Body body;
 
-    public Seaweed(int x, int y, World world){
+    public Seaweed(float x, float y, World world){
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("seaweed.png"))), 4, 1.5f);
         this.sprite = new Sprite(animation.getFrame());
 

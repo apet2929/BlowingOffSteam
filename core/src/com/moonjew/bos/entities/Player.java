@@ -53,8 +53,8 @@ public class Player {
 
         def.type = BodyDef.BodyType.DynamicBody;
 
-        int spawnX = -1;
-        int spawnY = -3;
+        float spawnX = 0.25f;
+        float spawnY = -3;
         def.position.set((sprite.getX() / PPM) + spawnX, (sprite.getY() / PPM) + spawnY);
         body = world.createBody(def);
 
@@ -132,7 +132,7 @@ public class Player {
         Vector2 pos = new Vector2(xOffset, -sprite.getHeight()/2);
 
         pos.rotateDeg(body.getAngle());
-        b.setBounds((body.getPosition().x ) * PPM + pos.x - sprite.getWidth()/2f, (body.getPosition().y) * PPM + pos.y, PPM, PPM);
+        b.setBounds((body.getPosition().x ) * PPM + pos.x - sprite.getWidth()/8f, (body.getPosition().y) * PPM + pos.y, PPM/4, PPM/4);
         b.setOriginCenter();
         bubbles.add(b);
     }

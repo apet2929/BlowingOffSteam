@@ -17,7 +17,7 @@ public class Fish {
     private Sprite sprite;
     private Body body;
 
-    public Fish(int x, int y, Texture texture, World world){
+    public Fish(float x, float y, Texture texture, World world){
         this.animation = new Animation(new TextureRegion(texture), 4, 1.0f);
         this.sprite = new Sprite(animation.getFrame());
         moveCounter = 0;

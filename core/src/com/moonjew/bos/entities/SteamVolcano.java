@@ -15,7 +15,7 @@ public class SteamVolcano {
     public Sprite sprite;
     private Body body;
 
-    public SteamVolcano(int x, int y, World world){
+    public SteamVolcano(float x, float y, World world){
         this.animation = new Animation(new TextureRegion(new Texture(Gdx.files.internal("volcano.png"))), 4, 1f);
         this.sprite = new Sprite(animation.getFrame());
 

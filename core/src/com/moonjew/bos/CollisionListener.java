@@ -23,13 +23,11 @@ public class CollisionListener implements ContactListener {
         System.out.println(fa.getBody().getType() + " has hit " + fb.getBody().getType());
 
         if(fa.isSensor() || fb.isSensor()){
-            System.out.println("True???");
             String strA = (String) a.getUserData();
             String strB = (String) b.getUserData();
             if(strA != null && strB != null) {
                 if (strA.equals("player") || strB.equals("player")) {
                     if (strA.equals("volcano") || strB.equals("volcano")) {
-                        System.out.println("PLAYER HIT VOLCANO");
                         player.inVolcano = true;
                     } else if (strA.equals("seaweed") || strB.equals("seaweed")) {
                         player.inSeaweed = true;
@@ -37,9 +35,20 @@ public class CollisionListener implements ContactListener {
 
                 }
             }
-        }
+        } else {
+            String strA = (String) a.getUserData();
+            String strB = (String) b.getUserData();
+            if (strA != null && strB != null) {
+                if (strA.equals("player") || strB.equals("player")) {
+                    if (strA.equals("fish") || strB.equals("fish")) {
+                        player.steam -= 15;
 
+                    }
+                }
+            }
+        }
     }
+
 
     @Override
     public void endContact(Contact contact) {
@@ -47,7 +56,6 @@ public class CollisionListener implements ContactListener {
         Fixture fb = contact.getFixtureB();
 
         if(fa.isSensor() || fb.isSensor()){
-            System.out.println("True???");
 //            Player left volcano
             Body a = fa.getBody();
             Body b = fb.getBody();
@@ -56,7 +64,6 @@ public class CollisionListener implements ContactListener {
             if(strA != null && strB != null) {
                 if(strA.equals("player") || strB.equals("player")) {
                     if (strA.equals("volcano") || strB.equals("volcano")) {
-                        System.out.println("PLAYER LEFT VOLCANO");
                         player.inVolcano = false;
                     } else if (strA.equals("seaweed") || strB.equals("seaweed")) {
                         player.inSeaweed = false;
