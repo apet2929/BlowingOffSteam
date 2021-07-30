@@ -89,15 +89,16 @@ public class GameScreen implements Screen {
     public void loadLevels(){
         levels = new Array<>();
         TmxMapLoader loader = new TmxMapLoader();
-        levels.add(loader.load("test.tmx"));
         levels.add(loader.load("level1.tmx"));
-        levels.add(loader.load("lvl2.tmx"));
+        levels.add(loader.load("level2.tmx"));
+
     }
 
     public void initWorld(){
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         this.b2dr = new Box2DDebugRenderer();
+        this.score = (level + 1) * 1000;
 
         collisionListener = new CollisionListener(player);
 
@@ -206,6 +207,7 @@ public class GameScreen implements Screen {
         scoreLabel.getStyle().font = font;
         scoreLabel.setStyle(scoreLabel.getStyle());
         scoreLabel.setColor(1,1,1,1);
+        root.add(scoreLabel).padBottom(500);
     }
 
     public void handleInput(){
@@ -279,7 +281,7 @@ public class GameScreen implements Screen {
             root.add(restartButton).top().left();
         }
 
-        score += delta * 8.5f;
+        score -= delta * 8.5f;
         scoreLabel.setText("Score: " + (int) score);
 
     }
@@ -318,9 +320,9 @@ public class GameScreen implements Screen {
 
         app.sb.begin();
 
-        scoreLabel.setX(app.cam.position.x - Gdx.graphics.getWidth()/2f);
-        scoreLabel.setY(app.cam.position.y - Gdx.graphics.getHeight()/2f);
-        scoreLabel.draw(app.sb, 0.5f);
+//        scoreLabel.setX(app.cam.position.x - Gdx.graphics.getWidth()/2f);
+//        scoreLabel.setY(app.cam.position.y - Gdx.graphics.getHeight()/2f);
+//        scoreLabel.draw(app.sb, 0.5f);
 
         app.sb.draw(emptyBar, app.cam.position.x - 150, app.cam.position.y + 275, 300, 15);
         app.sb.draw(steamBar, app.cam.position.x - 150, app.cam.position.y + 275, player.steam * 3, 15);

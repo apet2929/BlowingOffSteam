@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -15,14 +16,14 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.moonjew.bos.BlowingOffSteam;
 
-public class TitleScreen implements Screen {
+public class HowToScreen implements Screen {
     private final BlowingOffSteam app;
 
     private Stage stage;
     private Skin skin;
     private BitmapFont font;
 
-    public TitleScreen(final BlowingOffSteam app){
+    public HowToScreen(final BlowingOffSteam app){
         this.app = app;
         this.stage = new Stage(new FitViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT, app.cam));
     }
@@ -38,67 +39,42 @@ public class TitleScreen implements Screen {
 
         root.defaults().pad(10);
         TextButton.TextButtonStyle style;
-        TextButton textButton = new TextButton("TITLE", skin);
+        TextButton textButton = new TextButton("How to Play", skin);
         textButton.getStyle().font = this.font;
         textButton.setStyle(textButton.getStyle());
         style = textButton.getStyle();
         root.add(textButton).top().center().spaceBottom(150);
 
         root.row();
-        root.row();
-        root.row();
 
-        root.row();
+//        Label label = new Label("You play as an underwater explorer, \n" +
+//                " navigating through the dangerous seas \n" +
+//                "in his trusty steam-powered ship. \n " +
+//                "To THRUST forward, press and hold space. \n" +
+//                "To rotate, press the \n" +
+//                "LEFT and RIGHT arrow keys. \n" +
+//                "To stop, press BACK. When you THRUST, you lose STEAM. \n" +
+//                "If you run out of STEAM, \n" +
+//                "it's GAME OVER. Thankfully, the seas \n " +
+//                "are filled with underwater volcanoes, which can \n " +
+//                "restore your STEAM. Hover over them to refill! \n" +
+//                "Try and avoid the fish, as you will lose \n " +
+//                "STEAM if you bump into them. \n " +
+//                "Can you find your way out of all 4 levels? \n " +
+//                "Good luck!", skin);
 
-        root.defaults().width(300).height(60);
+        Label label = new Label("MOVE FORWARD->SPACE \n" +
+                "ROTATE->LEFT/RIGHT \n " +
+                "BRAKE->BACK \n " +
+                "AVOID FISH \n " +
+                "RESTORE STEAM \n IN VOLCANOES \n " +
+                "GET TO THE END"
+                , skin);
 
-        textButton = new TextButton("PLAY", skin);
-        textButton.setStyle(style);
-        textButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                app.setScreen(new GameScreen(app));
-            }
-        });
-        root.add(textButton).uniform();
-
-        root.row();
-
-
-        textButton = new TextButton("HOW TO", skin);
-        textButton.setStyle(style);
-        textButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                app.setScreen(new HowToScreen(app));
-            }
-        });
-        root.add(textButton).uniform();
-
-        root.row();
-        textButton = new TextButton("CREDITS", skin);
-        textButton.setStyle(style);
-        textButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                app.setScreen(new GameScreen(app));
-            }
-        });
-        root.add(textButton).uniform();
-
-        root.row();
-
-        textButton = new TextButton("QUIT", skin);
-        textButton.setStyle(style);
-        textButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Gdx.app.exit();
-            }
-        });
-        root.add(textButton).uniform();
-
-        root.row();
+        label.getStyle().font = font;
+        label.setAlignment(Align.center);
+        label.setStyle(label.getStyle());
+        root.add(label).center();
 
     }
 
