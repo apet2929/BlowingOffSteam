@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -55,9 +56,11 @@ public class GameScreen implements Screen {
     private World world;
     private Player player;
     private CollisionListener collisionListener;
-
+    SpriteBatch sb;
     int rows;
     Texture umbre;
+    Texture steamBar;
+    Texture emptyBar;
 
     //Shaders
 
@@ -75,6 +78,9 @@ public class GameScreen implements Screen {
         testTexture = new Texture(Gdx.files.internal("badlogic.jpg"));
         rows = 50;
         umbre = new Texture(Gdx.files.internal("umbre.png"));
+        steamBar = new Texture("steambar.png");
+        sb = new SpriteBatch();
+        emptyBar = new Texture("emptybar.png");
     }
 
     public void initWorld(){
@@ -262,7 +268,6 @@ public class GameScreen implements Screen {
         }
 
         player.render(app.sb, app.cam);
-
         app.sb.end();
 
         stage.draw();
@@ -287,6 +292,10 @@ public class GameScreen implements Screen {
         app.sb.draw(umbre, 0,0,BlowingOffSteam.WIDTH, -Gdx.graphics.getHeight() * 2);
 
         app.sb.end();
+        sb.begin();
+        sb.draw(emptyBar, 170, 580, 300, 15);
+        sb.draw(steamBar, 170, 580, player.steam * 3, 15);
+        sb.end();
 
     }
 
