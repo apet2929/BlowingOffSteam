@@ -3,16 +3,20 @@ package com.moonjew.bos.entities;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
 import com.moonjew.bos.Animation;
 import com.moonjew.bos.screens.GameScreen;
+
+import java.lang.ref.SoftReference;
+import java.util.Iterator;
 
 import static com.moonjew.bos.screens.GameScreen.PPM;
 
@@ -20,6 +24,7 @@ public class Player {
     private Animation animation;
     private Sprite sprite;
     private Body body;
+    private Array<Sprite> bubbles;
 
 //    Game mechanics
 
@@ -62,12 +67,15 @@ public class Player {
         body.setAngularDamping(0.93f);
         body.setUserData("player");
 
+
         this.maxSteam = 100f;
         this.steam = 100f;
         this.accelSpeed = tempAccelSpeed = 10f;
         this.turnSpeed = tempTurnSpeed = 2f;
         this.maxSpeed = tempMaxSpeed = 2.5f;
         this.steamCost = 0.1f;
+
+        this.bubbles = new Array<>(30);
 
     }
 
@@ -94,13 +102,39 @@ public class Player {
             this.tempMaxSpeed = maxSpeed;
         }
 
+        Iterator<Sprite> bubbleIterator = bubbles.iterator();
+        while (bubbleIterator.hasNext()){
+            Sprite bubble = bubbleIterator.next();
+            bubble.setScale(bubble.getScaleX() * 0.95f, bubble.getScaleY() * 0.95f);
+            bubble.setAlpha(bubble.getColor().a * 0.98f);
+            if(bubble.getScaleX() < 0.1f){
+                bubbleIterator.remove();
+            }
+        }
+
     }
 
     public void render(SpriteBatch sb, Camera cam) {
         TextureRegion r = animation.getFrame();
         sprite.setRegion(r);
         sb.setProjectionMatrix(cam.combined);
+        for(Sprite bubble : bubbles){
+            bubble.draw(sb);
+        }
         sprite.draw(sb);
+
+
+    }
+
+    public void createBubble(){
+        Sprite b = new Sprite(new Texture(Gdx.files.internal("bubble.png")));
+        int xOffset = (int) (Math.random()*16 - 8);
+        Vector2 pos = new Vector2(xOffset, -sprite.getHeight()/2);
+
+        pos.rotateDeg(body.getAngle());
+        b.setBounds((body.getPosition().x ) * PPM + pos.x - sprite.getWidth()/2f, (body.getPosition().y) * PPM + pos.y, PPM, PPM);
+        b.setOriginCenter();
+        bubbles.add(b);
     }
 
     public Body getBody() {

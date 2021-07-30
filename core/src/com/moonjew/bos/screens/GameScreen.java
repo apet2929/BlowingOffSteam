@@ -110,6 +110,7 @@ public class GameScreen implements Screen {
 
         if(Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)){
             if(player.steam - player.steamCost >= 0) {
+                player.createBubble();
                 p.applyForceToCenter(new Vector2(0, player.tempAccelSpeed).rotateRad(p.getAngle()), false);
                 player.steam -= player.steamCost;
             }

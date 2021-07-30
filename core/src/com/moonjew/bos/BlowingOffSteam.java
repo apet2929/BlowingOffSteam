@@ -13,8 +13,8 @@ import com.moonjew.bos.screens.TitleScreen;
 
 public class BlowingOffSteam extends Game {
 
-	public static final int WIDTH = 880;
-	public static final int HEIGHT = 660;
+	public static final int WIDTH = 640;
+	public static final int HEIGHT = 600;
 
 	public OrthographicCamera cam;
 	public SpriteBatch sb;
