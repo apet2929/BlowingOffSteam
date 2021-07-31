@@ -4,9 +4,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -33,16 +35,25 @@ public class TitleScreen implements Screen {
         this.skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         this.font = new BitmapFont(Gdx.files.internal("font1.fnt"));
         Table root = new Table();
+
         stage.addActor(root);
         root.setFillParent(true);
 
         root.defaults().pad(10);
         TextButton.TextButtonStyle style;
-        TextButton textButton = new TextButton("TITLE", skin);
-        textButton.getStyle().font = this.font;
-        textButton.setStyle(textButton.getStyle());
-        style = textButton.getStyle();
-        root.add(textButton).top().center().spaceBottom(150);
+//        TextButton textButton = new TextButton("", skin);
+//        textButton.getStyle().font = this.font;
+//        textButton.setStyle(textButton.getStyle());
+//        style = textButton.getStyle();
+//        root.add(textButton).top().center().spaceBottom(150);
+
+
+
+        Label title = new Label("Steam Ship\nAdventure!", skin);
+        title.getStyle().font = font;
+        title.setStyle(title.getStyle());
+        title.setColor(0,0,0,1);
+        root.add(title).padBottom(150);
 
         root.row();
         root.row();
@@ -52,7 +63,10 @@ public class TitleScreen implements Screen {
 
         root.defaults().width(300).height(60);
 
-        textButton = new TextButton("PLAY", skin);
+        TextButton textButton = new TextButton("PLAY", skin);
+        textButton.getStyle().font = this.font;
+        textButton.setStyle(textButton.getStyle());
+        style = textButton.getStyle();
         textButton.setStyle(style);
         textButton.addListener(new ChangeListener() {
             @Override
@@ -101,7 +115,6 @@ public class TitleScreen implements Screen {
         root.add(textButton).uniform();
 
         root.row();
-
     }
 
     public void update(float delta){
@@ -114,6 +127,9 @@ public class TitleScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(delta);
+        stage.getBatch().begin();
+        stage.getBatch().draw(new Texture("menupic.png"), 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
+        stage.getBatch().end();
         stage.draw();
     }
 

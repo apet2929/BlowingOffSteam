@@ -80,6 +80,7 @@ public class GameScreen implements Screen {
         TmxMapLoader loader = new TmxMapLoader();
         levels.add(loader.load("level1.tmx"));
         levels.add(loader.load("level2.tmx"));
+        levels.add(loader.load("level3.tmx"));
 
     }
 
