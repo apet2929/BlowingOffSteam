@@ -80,6 +80,7 @@ public class GameScreen implements Screen {
         TmxMapLoader loader = new TmxMapLoader();
         levels.add(loader.load("level1.tmx"));
         levels.add(loader.load("level2.tmx"));
+        levels.add(loader.load("level3.tmx"));
 
     }
 
@@ -157,7 +158,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        level = 0;
+        level = 2;
         loadLevels();
         initWorld();
 
