@@ -25,7 +25,7 @@ public class Fish {
 
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
-        def.position.set((sprite.getX() / PPM) + x, (sprite.getY() / PPM) + y);
+        def.position.set(x, y);
         body = world.createBody(def);
 
         PolygonShape shape = new PolygonShape();

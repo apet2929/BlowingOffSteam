@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.moonjew.bos.BlowingOffSteam;
@@ -27,9 +28,11 @@ public class CutsceneState implements Screen {
     private BitmapFont font;
     private Label label;
     private Stage stage;
-    private int curLine;
+    public int curLine;
     private String[] lines;
     private String[] lines2;
+    private String[] lines3;
+    private String[] lines4;
 
     public CutsceneState(final BlowingOffSteam app, GameScreen screen) {
         this.app = app;
@@ -48,24 +51,44 @@ public class CutsceneState implements Screen {
                 "What was he \nsearching for?",
                 "We shall see."
         };
+
+        lines3 = new String[] {
+                "As another\nlayer passes\nby,", "the little\nship knows his\ngoal is within\nreach." , "But,", "his success\nis not yet\nguaranteed.", "Anything can\nstill go wrong...", "Will it?"
+        };
+
+        lines4 = new String[] {
+                "Wow., You've done it.", "You completed\nthe journey.", "What was the\npoint?", "Well, when you\nstarted playing\nyou were\nfrustrated with\nthe controls.", "Now, you are\nless disappointed.\n (I hope)", "So, you blew off\nsome steam."
+        };
+
+        skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
+        font = new BitmapFont(Gdx.files.internal("font1.fnt"));
+
         System.out.println("CutsceneState.CutsceneState");
     }
+
     @Override
     public void show() {
         stage = new Stage(new StretchViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT));
         Table root = new Table();
         stage.addActor(root);
         root.setFillParent(true);
-        skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
-        font = new BitmapFont(Gdx.files.internal("font1.fnt"));
+
         if (game.level == 0) {
             label = new Label(lines[0], skin);
         }
         else if (game.level == 1) {
             label = new Label(lines2[0], skin);
         }
+        else if (game.level == 2) {
+            label = new Label(lines3[0], skin);
+        }
+        else if (game.level == 3) {
+            label = new Label(lines4[0], skin);
+        }
+        System.out.println("game.level = " + game.level);
         label.getStyle().font = font;
         label.getStyle().fontColor = Color.WHITE;
+        label.setAlignment(Align.center);
         label.setStyle(label.getStyle());
         root.add(label);
 //        curLine = 0;
@@ -76,15 +99,37 @@ public class CutsceneState implements Screen {
         if(Gdx.input.justTouched()){
             curLine++;
 
-            if(curLine >= lines.length){
-                app.setScreen(game);
-                return;
-            }
             if (game.level == 0) {
+                System.out.println("Level = 0");
+                if(curLine >= lines.length){
+                    curLine = 0;
+                    app.setScreen(game);
+                    return;
+                }
                 label.setText(lines[curLine]);
             }
             else if (game.level == 1) {
+                System.out.println("Level = 1");
+                if(curLine >= lines2.length){
+                    curLine = 0;
+                    app.setScreen(game);
+                    return;
+                }
                 label.setText(lines2[curLine]);
+            } else if(game.level == 2){
+                if(curLine >= lines3.length){
+                    curLine = 0;
+                    app.setScreen(game);
+                    return;
+                }
+                label.setText(lines3[curLine]);
+            } else if(game.level == 3){
+                if(curLine >= lines4.length){
+                    curLine = 0;
+                    app.setScreen(new CreditState(app));
+                    return;
+                }
+                label.setText(lines4[curLine]);
             }
         }
     }
@@ -96,7 +141,7 @@ public class CutsceneState implements Screen {
 
         update(delta);
         stage.draw();
-        System.out.println(curLine);
+//        System.out.println(curLine);
 
     }
 

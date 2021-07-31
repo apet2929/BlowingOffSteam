@@ -36,6 +36,7 @@ public class GameScreen implements Screen {
     public static final float PPM = 64;
 
     private final BlowingOffSteam app;
+    public CutsceneState cutsceneState;
 
     //UI
     private Stage stage;
@@ -73,7 +74,7 @@ public class GameScreen implements Screen {
     public GameScreen(BlowingOffSteam app, int level){
         this.level = level;
         this.app = app;
-        this.stage = new Stage(new StretchViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT));
+        cutsceneState = new CutsceneState(app, this);
     }
 
     public void loadLevels(){
@@ -135,7 +136,7 @@ public class GameScreen implements Screen {
                 TiledMapTileLayer.Cell cell = layer.getCell(col, row);
                 if (cell == null) continue;
                 if (cell.getTile() == null) continue;
-
+                System.out.println(col + " | " + row);
                 fish.add(new Fish(col + 0.5f, row + 0.5f, fishTexture, world));
             }
         }
@@ -160,7 +161,6 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        level = 0;
         loadLevels();
         initWorld();
 
@@ -169,8 +169,10 @@ public class GameScreen implements Screen {
         steamBar = new Texture("steambar.png");
         emptyBar = new Texture("emptybar.png");
 
+        this.stage = new Stage(new StretchViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT));
 
         Gdx.input.setInputProcessor(stage);
+
         this.skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         this.font = new BitmapFont(Gdx.files.internal("font1.fnt"));
 
@@ -198,12 +200,19 @@ public class GameScreen implements Screen {
                 nextLevelButton.getWidth(), nextLevelButton.getHeight());
         nextLevelButton.getStyle().font = this.font;
         nextLevelButton.setStyle(nextLevelButton.getStyle());
+        final GameScreen gameScreen = this;
         nextLevelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 level++;
-                app.setScreen(new CutsceneState(app, new GameScreen(app, level)));
-                initWorld();
+                cutsceneState.curLine = 0;
+                app.setScreen(cutsceneState);
+
+                if(level != levels.size) {
+                    initWorld();
+                } else {
+                    dispose();
+                }
                 root.removeActor(nextLevelButton);
             }
         });

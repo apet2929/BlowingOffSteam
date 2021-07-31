@@ -11,7 +11,7 @@
  <tileset firstgid="22" source="fish.tsx"/>
  <tileset firstgid="26" source="bigfish.tsx"/>
  <tileset firstgid="27" source="volcano.tsx"/>
- <layer id="5" name="volcano" width="10" height="100">
+ <layer id="5" name="volcanoes" width="10" height="100">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,

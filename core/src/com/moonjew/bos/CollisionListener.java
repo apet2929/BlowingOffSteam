@@ -18,12 +18,12 @@ public class CollisionListener implements ContactListener {
 
     @Override
     public void beginContact(Contact contact) {
-        System.out.println("Contact");
+//        System.out.println("Contact");
         Fixture fa = contact.getFixtureA();
         Fixture fb = contact.getFixtureB();
         Body a = fa.getBody();
         Body b = fb.getBody();
-        System.out.println(fa.getBody().getType() + " has hit " + fb.getBody().getType());
+//        System.out.println(fa.getBody().getType() + " has hit " + fb.getBody().getType());
 
         if(fa.isSensor() || fb.isSensor()){
             String strA = (String) a.getUserData();

@@ -59,7 +59,7 @@ public class Player {
         def.type = BodyDef.BodyType.DynamicBody;
 
         float spawnX = 0.25f;
-        float spawnY = -2;
+        float spawnY = 80;
         def.position.set((sprite.getX() / PPM) + spawnX, (sprite.getY() / PPM) + spawnY);
         body = world.createBody(def);
 

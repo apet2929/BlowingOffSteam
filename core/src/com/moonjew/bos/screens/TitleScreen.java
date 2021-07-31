@@ -1,5 +1,6 @@
 package com.moonjew.bos.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -47,8 +48,6 @@ public class TitleScreen implements Screen {
 //        style = textButton.getStyle();
 //        root.add(textButton).top().center().spaceBottom(150);
 
-
-
         Label title = new Label("Steam Ship\nAdventure!", skin);
         title.getStyle().font = font;
         title.setStyle(title.getStyle());
@@ -72,7 +71,8 @@ public class TitleScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 System.out.println("TitleScreen.changed");
-                app.setScreen(new CutsceneState(app, new GameScreen(app)));
+                GameScreen game = new GameScreen(app, 0);
+                app.setScreen(game.cutsceneState);
                 dispose();
             }
         });

@@ -42,7 +42,12 @@ public class HowToScreen implements Screen {
         TextButton textButton = new TextButton("How to Play", skin);
         textButton.getStyle().font = this.font;
         textButton.setStyle(textButton.getStyle());
-        style = textButton.getStyle();
+        textButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                app.setScreen(new TitleScreen(app));
+            }
+        });
         root.add(textButton).top().center().spaceBottom(150);
 
         root.row();
