@@ -87,6 +87,7 @@ public class GameScreen implements Screen {
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
         dead = false;
+        endOfLevel = false;
         this.b2dr = new Box2DDebugRenderer();
         this.score = (level + 1) * 1000;
 
@@ -150,14 +151,14 @@ public class GameScreen implements Screen {
             }
         }
 
-        createBoxScaled(-1, -2, 1, 102, true);
-        createBoxScaled(11, -2, 1, 102, true);
+        createBoxScaled(-1, -2, 1, 150, true);
+        createBoxScaled(11, -2, 1, 150, true);
     }
 
     @Override
     public void show() {
 
-        level = 0;
+        level = 1;
         loadLevels();
         initWorld();
 
