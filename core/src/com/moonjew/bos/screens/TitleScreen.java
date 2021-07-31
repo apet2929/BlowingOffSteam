@@ -97,7 +97,7 @@ public class TitleScreen implements Screen {
         textButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                app.setScreen(new GameScreen(app));
+                app.setScreen(new CreditState(app));
             }
         });
         root.add(textButton).uniform();
@@ -127,9 +127,9 @@ public class TitleScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(delta);
-        stage.getBatch().begin();
-        stage.getBatch().draw(new Texture("menupic.png"), 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
-        stage.getBatch().end();
+        app.sb.begin();
+        app.sb.draw(new Texture("menupic.png"), 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
+        app.sb.end();
         stage.draw();
     }
 
