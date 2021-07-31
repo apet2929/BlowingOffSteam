@@ -57,7 +57,9 @@ public class TitleScreen implements Screen {
         textButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                app.setScreen(new GameScreen(app));
+                System.out.println("TitleScreen.changed");
+                app.setScreen(new CutsceneState(app, new GameScreen(app)));
+                dispose();
             }
         });
         root.add(textButton).uniform();
@@ -137,6 +139,9 @@ public class TitleScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        stage.dispose();
+        skin.dispose();
+        font.dispose();
     }
+
 }

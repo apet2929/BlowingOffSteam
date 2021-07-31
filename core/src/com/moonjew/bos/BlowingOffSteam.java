@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.moonjew.bos.screens.CutsceneState;
 import com.moonjew.bos.screens.GameScreen;
 import com.moonjew.bos.screens.TitleScreen;
 

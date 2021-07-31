@@ -32,8 +32,6 @@ import com.moonjew.bos.entities.Player;
 import com.moonjew.bos.entities.Seaweed;
 import com.moonjew.bos.entities.SteamVolcano;
 
-import java.awt.*;
-
 public class GameScreen implements Screen {
     public static final float PPM = 64;
 
@@ -53,7 +51,6 @@ public class GameScreen implements Screen {
     //Game stuff
     private int level;
     private Array<TiledMap> levels;
-    private TiledMap tiledMap;
     private TiledMapTileLayer rockLayer;
     private OrthogonalTiledMapRenderer tmr;
     private Box2DDebugRenderer b2dr;
@@ -64,26 +61,15 @@ public class GameScreen implements Screen {
     Texture umbre;
     Texture steamBar;
     Texture emptyBar;
+    boolean dead;
 
     Array<Fish> fish;
     Array<SteamVolcano> volcanoes;
     Array<Seaweed> seaweed;
-    Texture testTexture;
 
     public GameScreen(BlowingOffSteam app){
         this.app = app;
         this.stage = new Stage(new StretchViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT));
-
-        level = 0;
-        loadLevels();
-        initWorld();
-
-        testTexture = new Texture(Gdx.files.internal("badlogic.jpg"));
-        rows = 50;
-        umbre = new Texture(Gdx.files.internal("umbre.png"));
-        steamBar = new Texture("steambar.png");
-        emptyBar = new Texture("emptybar.png");
-
     }
 
     public void loadLevels(){
@@ -97,12 +83,13 @@ public class GameScreen implements Screen {
     public void initWorld(){
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
+        dead = false;
         this.b2dr = new Box2DDebugRenderer();
         this.score = (level + 1) * 1000;
 
         collisionListener = new CollisionListener(player);
 
-        tmr = new OrthogonalTiledMapRenderer(tiledMap);
+        tmr = new OrthogonalTiledMapRenderer(levels.get(level));
 
         fish = new Array<>();
         volcanoes = new Array<>();
@@ -122,23 +109,14 @@ public class GameScreen implements Screen {
                 createBox((int) ((col + 0.5f) * PPM), (int) ((row + 0.5f) * PPM), (int)PPM, (int)PPM, true);
             }
         }
-//        layer = (TiledMapTileLayer) tiledMap.getLayers().get("rockwall");
-//        for (int row = 0; row < layer.getHeight(); row++) {
-//            for (int col = 0; col < layer.getWidth(); col++) {
-//                TiledMapTileLayer.Cell cell = layer.getCell(col, row);
-//                if (cell == null) continue;
-//                if (cell.getTile() == null) continue;
-//
-//                createBox((int) ((col + 0.5f) * PPM), (int) ((row + 0.5f) * PPM), (int)PPM, (int)PPM, true);
-//            }
-//        }
+
         layer = (TiledMapTileLayer) levels.get(level).getLayers().get("seaweed");
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
                 TiledMapTileLayer.Cell cell = layer.getCell(col, row);
                 if (cell == null) continue;
                 if (cell.getTile() == null) continue;
-                System.out.println("New seaweed");
+//                System.out.println("New seaweed");
                 seaweed.add(new Seaweed(col + 0.5f, row + 0.5f, world));
             }
         }
@@ -170,16 +148,21 @@ public class GameScreen implements Screen {
 
         createBoxScaled(-1, -2, 1, 102, true);
         createBoxScaled(11, -2, 1, 102, true);
-
-//        volcanoes.add(new SteamVolcano(5, 6, world));
-//        fish.add(new Fish(5, 7, new Texture(Gdx.files.internal("fish1.png")), world));
-//        seaweed.add(new Seaweed(5,3, world));
-//        seaweed.add(new Seaweed(4, 3, world));
     }
-
 
     @Override
     public void show() {
+
+        level = 0;
+        loadLevels();
+        initWorld();
+
+        rows = 50;
+        umbre = new Texture(Gdx.files.internal("umbre.png"));
+        steamBar = new Texture("steambar.png");
+        emptyBar = new Texture("emptybar.png");
+
+
         Gdx.input.setInputProcessor(stage);
         this.skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         this.font = new BitmapFont(Gdx.files.internal("font1.fnt"));
@@ -202,7 +185,6 @@ public class GameScreen implements Screen {
             }
         });
 
-        steamLabel = new Label("Steam: ", skin);
         scoreLabel = new Label("Score: ", skin);
         scoreLabel.getStyle().font = font;
         scoreLabel.setStyle(scoreLabel.getStyle());
@@ -276,14 +258,21 @@ public class GameScreen implements Screen {
         handleInput();
         cameraUpdate();
 
-        if(Math.round(player.steam) <= 0 || player.getBody().getPosition().y * PPM + PPM/2f< app.cam.position.y - app.cam.viewportHeight/2f){
+        if((Math.round(player.steam) <= 0 || player.getBody().getPosition().y * PPM + PPM/2f< app.cam.position.y - app.cam.viewportHeight/2f) && !dead){
             player.steam = 0;
-            root.add(restartButton).top().left();
+            root.row();
+            root.add(restartButton).padTop(-500);
+            System.out.println("dead = " + dead);
+            dead = true;
         }
 
-        score -= delta * 8.5f;
-        scoreLabel.setText("Score: " + (int) score);
-
+        if(dead){
+            restartButton.act(delta);
+        }
+        else {
+            score -= delta * 8.5f;
+            scoreLabel.setText("Score: " + (int) score);
+        }
     }
 
     @Override
@@ -326,9 +315,11 @@ public class GameScreen implements Screen {
 
         app.sb.draw(emptyBar, app.cam.position.x - 150, app.cam.position.y + 275, 300, 15);
         app.sb.draw(steamBar, app.cam.position.x - 150, app.cam.position.y + 275, player.steam * 3, 15);
+
         app.sb.end();
 
         stage.draw();
+
     }
 
     public Body createBox(float x, float y, float width, float height, boolean isStatic){
