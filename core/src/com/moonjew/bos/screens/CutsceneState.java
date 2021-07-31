@@ -29,13 +29,24 @@ public class CutsceneState implements Screen {
     private Stage stage;
     private int curLine;
     private String[] lines;
+    private String[] lines2;
 
     public CutsceneState(final BlowingOffSteam app, GameScreen screen) {
         this.app = app;
         this.game = screen;
         curLine = 0;
         lines = new String[]{
-                "Test 1", "Test 2", "Test 3"
+                "Once upon a time", "there was a little\nunderwater ship.",
+                "It was powered by\nsteam from\nunderwater\nvolcanoes.",
+                "And so it set off\non a quest to\nexplore the deep", "blue", "sea."
+        };
+        lines2 = new String[] {
+                "It had \nsuccessfully \ntravelled one \nlayer of the \ndeep ocean,",
+                "perilously \navoiding \nvicious sea \ncreatures.",
+                "But there\nwas another, \nmore challenging\n layer to come.",
+                "He was on a quest.",
+                "What was he \nsearching for?",
+                "We shall see."
         };
         System.out.println("CutsceneState.CutsceneState");
     }
@@ -47,7 +58,12 @@ public class CutsceneState implements Screen {
         root.setFillParent(true);
         skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         font = new BitmapFont(Gdx.files.internal("font1.fnt"));
-        label = new Label(lines[0], skin);
+        if (game.level == 0) {
+            label = new Label(lines[0], skin);
+        }
+        else if (game.level == 1) {
+            label = new Label(lines2[0], skin);
+        }
         label.getStyle().font = font;
         label.getStyle().fontColor = Color.WHITE;
         label.setStyle(label.getStyle());
@@ -64,7 +80,12 @@ public class CutsceneState implements Screen {
                 app.setScreen(game);
                 return;
             }
-            label.setText(lines[curLine]);
+            if (game.level == 0) {
+                label.setText(lines[curLine]);
+            }
+            else if (game.level == 1) {
+                label.setText(lines2[curLine]);
+            }
         }
     }
 

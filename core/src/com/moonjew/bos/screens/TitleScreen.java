@@ -72,7 +72,7 @@ public class TitleScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 System.out.println("TitleScreen.changed");
-                app.setScreen(new CutsceneState(app, new GameScreen(app)));
+                app.setScreen(new CutsceneState(app, new GameScreen(app, 0)));
                 dispose();
             }
         });
@@ -97,7 +97,7 @@ public class TitleScreen implements Screen {
         textButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                app.setScreen(new GameScreen(app));
+                app.setScreen(new GameScreen(app, 0));
             }
         });
         root.add(textButton).uniform();
