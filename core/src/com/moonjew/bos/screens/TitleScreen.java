@@ -127,9 +127,9 @@ public class TitleScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(delta);
-        app.sb.begin();
-        app.sb.draw(new Texture("menupic.png"), 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
-        app.sb.end();
+        stage.getBatch().begin();
+        stage.getBatch().draw(new Texture("menupic.png"), 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
+        stage.getBatch().end();
         stage.draw();
     }
 

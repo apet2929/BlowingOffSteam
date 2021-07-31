@@ -50,7 +50,7 @@ public class GameScreen implements Screen {
     private TextButton nextLevelButton;
 
     //Game stuff
-    private int level;
+    public int level;
     private Array<TiledMap> levels;
     private TiledMapTileLayer rockLayer;
     private TiledMapTileLayer seaweedLayer;
@@ -70,7 +70,8 @@ public class GameScreen implements Screen {
     Array<SteamVolcano> volcanoes;
     Array<Seaweed> seaweed;
 
-    public GameScreen(BlowingOffSteam app){
+    public GameScreen(BlowingOffSteam app, int level){
+        this.level = level;
         this.app = app;
         this.stage = new Stage(new StretchViewport(BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT));
     }
@@ -159,7 +160,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        level = 1;
+        level = 0;
         loadLevels();
         initWorld();
 
@@ -201,6 +202,7 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 level++;
+                app.setScreen(new CutsceneState(app, new GameScreen(app, level)));
                 initWorld();
                 root.removeActor(nextLevelButton);
             }
