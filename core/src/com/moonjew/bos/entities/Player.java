@@ -78,7 +78,7 @@ public class Player {
         this.accelSpeed = tempAccelSpeed = 10f;
         this.turnSpeed = tempTurnSpeed = 2f;
         this.maxSpeed = tempMaxSpeed = 2.5f;
-        this.steamCost = 0.1f;
+        this.steamCost = 0.15f;
 
         this.bubbles = new Array<>(30);
 

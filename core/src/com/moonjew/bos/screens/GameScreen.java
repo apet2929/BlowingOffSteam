@@ -47,11 +47,13 @@ public class GameScreen implements Screen {
     private float score;
 
     private TextButton restartButton;
+    private TextButton nextLevelButton;
 
     //Game stuff
     private int level;
     private Array<TiledMap> levels;
     private TiledMapTileLayer rockLayer;
+    private TiledMapTileLayer seaweedLayer;
     private OrthogonalTiledMapRenderer tmr;
     private Box2DDebugRenderer b2dr;
     private World world;
@@ -62,6 +64,7 @@ public class GameScreen implements Screen {
     Texture steamBar;
     Texture emptyBar;
     boolean dead;
+    boolean endOfLevel;
 
     Array<Fish> fish;
     Array<SteamVolcano> volcanoes;
@@ -111,6 +114,7 @@ public class GameScreen implements Screen {
         }
 
         layer = (TiledMapTileLayer) levels.get(level).getLayers().get("seaweed");
+        seaweedLayer = layer;
         for (int row = 0; row < layer.getHeight(); row++) {
             for (int col = 0; col < layer.getWidth(); col++) {
                 TiledMapTileLayer.Cell cell = layer.getCell(col, row);
@@ -157,7 +161,7 @@ public class GameScreen implements Screen {
         loadLevels();
         initWorld();
 
-        rows = 50;
+        rows = 100;
         umbre = new Texture(Gdx.files.internal("umbre.png"));
         steamBar = new Texture("steambar.png");
         emptyBar = new Texture("emptybar.png");
@@ -185,6 +189,21 @@ public class GameScreen implements Screen {
             }
         });
 
+        nextLevelButton = new TextButton("Next Level", skin);
+        nextLevelButton.setBounds(Gdx.graphics.getWidth()/2f - nextLevelButton.getWidth()/2,
+                Gdx.graphics.getHeight()/2f - nextLevelButton.getHeight()/2f,
+                nextLevelButton.getWidth(), nextLevelButton.getHeight());
+        nextLevelButton.getStyle().font = this.font;
+        nextLevelButton.setStyle(nextLevelButton.getStyle());
+        nextLevelButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                level++;
+                initWorld();
+                root.removeActor(nextLevelButton);
+            }
+        });
+
         scoreLabel = new Label("Score: ", skin);
         scoreLabel.getStyle().font = font;
         scoreLabel.setStyle(scoreLabel.getStyle());
@@ -193,42 +212,44 @@ public class GameScreen implements Screen {
     }
 
     public void handleInput(){
-        Body p = player.getBody();
+        if(!endOfLevel) {
+            Body p = player.getBody();
 
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            p.setAngularVelocity(player.tempTurnSpeed);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            p.setAngularVelocity(-player.tempTurnSpeed);
-        }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                p.setAngularVelocity(player.tempTurnSpeed);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                p.setAngularVelocity(-player.tempTurnSpeed);
+            }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)){
-            if(player.steam - player.steamCost >= 0) {
-                player.createBubble();
-                p.applyForceToCenter(new Vector2(0, player.tempAccelSpeed).rotateRad(p.getAngle()), false);
-                player.steam -= player.steamCost;
+            if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                if (player.steam - player.steamCost >= 0) {
+                    player.createBubble();
+                    p.applyForceToCenter(new Vector2(0, player.tempAccelSpeed).rotateRad(p.getAngle()), false);
+                    player.steam -= player.steamCost;
 
+                }
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+                p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
+            }
+            if(p.getLinearVelocity().x > player.tempMaxSpeed){
+                p.setLinearVelocity(player.tempMaxSpeed, p.getLinearVelocity().y);
+            } else if(p.getLinearVelocity().x < -player.tempMaxSpeed){
+                p.setLinearVelocity(-player.tempMaxSpeed, p.getLinearVelocity().y);
+            }
+            if(p.getLinearVelocity().y > player.tempMaxSpeed){
+                p.setLinearVelocity(p.getLinearVelocity().x, player.tempMaxSpeed);
+            } else if(p.getLinearVelocity().y < -player.tempMaxSpeed){
+                p.setLinearVelocity(p.getLinearVelocity().x, -player.tempMaxSpeed);
             }
         }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-            p.setLinearVelocity(p.getLinearVelocity().x * 0.93f, p.getLinearVelocity().y * 0.93f);
-        }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && endOfLevel){
             level++;
             initWorld();
         }
 
-        if(p.getLinearVelocity().x > player.tempMaxSpeed){
-            p.setLinearVelocity(player.tempMaxSpeed, p.getLinearVelocity().y);
-        } else if(p.getLinearVelocity().x < -player.tempMaxSpeed){
-            p.setLinearVelocity(-player.tempMaxSpeed, p.getLinearVelocity().y);
-        }
-        if(p.getLinearVelocity().y > player.tempMaxSpeed){
-            p.setLinearVelocity(p.getLinearVelocity().x, player.tempMaxSpeed);
-        } else if(p.getLinearVelocity().y < -player.tempMaxSpeed){
-            p.setLinearVelocity(p.getLinearVelocity().x, -player.tempMaxSpeed);
-        }
     }
 
     public void cameraUpdate() {
@@ -269,9 +290,16 @@ public class GameScreen implements Screen {
         if(dead){
             restartButton.act(delta);
         }
-        else {
+        else if(!endOfLevel){
             score -= delta * 8.5f;
             scoreLabel.setText("Score: " + (int) score);
+        }
+
+        if(player.getBody().getPosition().y >= 90){
+            endOfLevel = true;
+            root.row();
+            root.add(nextLevelButton).padTop(-500);
+
         }
     }
 
@@ -285,11 +313,11 @@ public class GameScreen implements Screen {
 
         app.sb.setProjectionMatrix(app.cam.combined);
         app.sb.begin();
-        app.sb.draw(umbre, 0,app.cam.position.y * 0.5f - 200, BlowingOffSteam.WIDTH, rows * PPM);
+        app.sb.draw(umbre, 0,0, BlowingOffSteam.WIDTH, rows * PPM);
 
-        for(Seaweed seaweed : seaweed){
-            seaweed.render(app.sb);
-        }
+//        for(Seaweed seaweed : seaweed){
+//            seaweed.render(app.sb);
+//        }
         for(SteamVolcano volcano : volcanoes){
             volcano.render(app.sb);
         }
@@ -302,10 +330,11 @@ public class GameScreen implements Screen {
 
         tmr.setView(app.cam);
         tmr.getBatch().begin();
+        tmr.renderTileLayer(seaweedLayer);
         tmr.renderTileLayer(rockLayer);
         tmr.getBatch().end();
 
-        b2dr.render(world, app.cam.combined.scl(PPM));
+//        b2dr.render(world, app.cam.combined.scl(PPM));
 
         app.sb.begin();
 
