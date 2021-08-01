@@ -20,6 +20,7 @@ public class CreditState implements Screen {
     private Stage stage;
     private Skin skin;
     private BitmapFont font;
+    private Texture bg;
 
     public CreditState(final BlowingOffSteam app){
         this.app = app;
@@ -28,6 +29,7 @@ public class CreditState implements Screen {
 
     @Override
     public void show() {
+        bg = new Texture("menupic.png");
         Gdx.input.setInputProcessor(stage);
         this.skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         this.font = new BitmapFont(Gdx.files.internal("font1.fnt"));
@@ -35,8 +37,6 @@ public class CreditState implements Screen {
 
         stage.addActor(root);
         root.setFillParent(true);
-
-        root.setDebug(true);
 
         root.defaults().expand();
 
@@ -157,7 +157,7 @@ public class CreditState implements Screen {
 
         update(delta);
         app.sb.begin();
-        app.sb.draw(new Texture("menupic.png"), 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
+        app.sb.draw(bg, 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
         app.sb.end();
         stage.draw();
     }

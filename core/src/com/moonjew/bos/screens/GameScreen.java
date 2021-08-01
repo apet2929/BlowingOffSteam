@@ -1,8 +1,11 @@
 package com.moonjew.bos.screens;
 
+import box2dLight.ConeLight;
+import box2dLight.RayHandler;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -60,6 +63,9 @@ public class GameScreen implements Screen {
     private World world;
     private Player player;
     private CollisionListener collisionListener;
+    private RayHandler rayHandler;
+    private ConeLight playerLight;
+
     int rows;
     Texture umbre;
     Texture steamBar;
@@ -89,6 +95,13 @@ public class GameScreen implements Screen {
     public void initWorld(){
         this.world = new World(new Vector2(0,0), false);
         this.player = new Player(world);
+        this.rayHandler = new RayHandler(world);
+        rayHandler.setAmbientLight(0.5f);
+        playerLight = new ConeLight(rayHandler, 100, Color.WHITE, 5, 0, 0, 180, 45);
+        playerLight.attachToBody(player.getBody(), 0, 0.5f, 90);
+
+
+
         dead = false;
         endOfLevel = false;
         this.b2dr = new Box2DDebugRenderer();
@@ -102,7 +115,7 @@ public class GameScreen implements Screen {
         volcanoes = new Array<>();
         seaweed = new Array<>();
 
-        app.cam.position.set(player.getBody().getPosition().x * PPM, player.getBody().getPosition().y * PPM, 0);
+        app.cam.position.set(5 * PPM, player.getBody().getPosition().y * PPM, 0);
 
         world.setContactListener(collisionListener);
         TiledMapTileLayer layer = (TiledMapTileLayer) levels.get(level).getLayers().get("rocks");
@@ -278,8 +291,10 @@ public class GameScreen implements Screen {
     public void update(float delta){
         stage.act(delta);
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+        rayHandler.update();
         player.update(delta, app.cam);
-        for(Fish fish : fish){
+
+        for(Fish fish : fish) {
             fish.update(delta);
         }
         for (SteamVolcano volcano : volcanoes) {
@@ -296,7 +311,6 @@ public class GameScreen implements Screen {
             player.steam = 0;
             root.row();
             root.add(restartButton).padTop(-500);
-            System.out.println("dead = " + dead);
             dead = true;
         }
 
@@ -314,6 +328,9 @@ public class GameScreen implements Screen {
             root.add(nextLevelButton).padTop(-500);
 
         }
+
+        rayHandler.setCombinedMatrix(app.cam.combined.cpy().scl(PPM));
+
     }
 
     @Override
@@ -346,6 +363,8 @@ public class GameScreen implements Screen {
         tmr.renderTileLayer(seaweedLayer);
         tmr.renderTileLayer(rockLayer);
         tmr.getBatch().end();
+        rayHandler.render();
+
 
 //        b2dr.render(world, app.cam.combined.scl(PPM));
 
@@ -412,6 +431,7 @@ public class GameScreen implements Screen {
         player.dispose();
         world.dispose();
         b2dr.dispose();
+        rayHandler.dispose();
 
     }
 }

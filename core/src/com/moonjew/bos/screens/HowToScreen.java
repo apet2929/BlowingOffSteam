@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -22,6 +23,7 @@ public class HowToScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private BitmapFont font;
+    private Texture bg;
 
     public HowToScreen(final BlowingOffSteam app){
         this.app = app;
@@ -33,6 +35,7 @@ public class HowToScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         this.skin = new Skin(Gdx.files.internal("metalui/metal-ui.json"));
         this.font = new BitmapFont(Gdx.files.internal("font1.fnt"));
+        bg = new Texture("menupic.png");
         Table root = new Table();
         stage.addActor(root);
         root.setFillParent(true);
@@ -80,7 +83,6 @@ public class HowToScreen implements Screen {
         label.setAlignment(Align.center);
         label.setStyle(label.getStyle());
         root.add(label).center();
-
     }
 
     public void update(float delta){
@@ -92,7 +94,11 @@ public class HowToScreen implements Screen {
         Gdx.gl.glClearColor(.9f, .9f, .9f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+
         update(delta);
+        app.sb.begin();
+        app.sb.draw(bg, 0, 0, BlowingOffSteam.WIDTH, BlowingOffSteam.HEIGHT);
+        app.sb.end();
         stage.draw();
     }
 
@@ -118,6 +124,9 @@ public class HowToScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        bg.dispose();
+        font.dispose();
+        stage.dispose();
+        skin.dispose();
     }
 }
